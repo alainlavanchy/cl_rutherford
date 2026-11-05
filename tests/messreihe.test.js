@@ -15,7 +15,8 @@ test("Acht Werte wie in der Spezifikation", () => {
 
 // Die Spalte z / A^(3/2) ist aus der Spezifikation übernommen, nicht nachgerechnet.
 // Nachgerechnet (·10⁴) stimmen fünf Zeilen auf ±1. Bei Zinn (262 statt 226), Kupfer (283 statt 225)
-// und Eisen (243 statt 250) passt die Spalte nicht zu z und A. Offener Punkt: im Original prüfen.
+// und Eisen (243 statt 250) passt die Spalte nicht zu z und A. Von Alain am Original geprüft (2026-11-05):
+// Die Tabelle ist so richtig, die Abweichungen stehen im Original.
 const ABWEICHUNG = ["Zinn", "Kupfer", "Eisen"];
 
 test("z / A^(3/2) passt zu z und A, ausser bei den bekannten Abweichungen", () => {

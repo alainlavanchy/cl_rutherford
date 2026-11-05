@@ -24,7 +24,9 @@
   // ----- Zeichnen -----
   var pal = window.RSPalette.createPalette(window.RSPalette.bodyResolver(document));
   var dirty = true;
-  var stage = window.RSCanvas.createStage($("cv"), $("stage"), window.RSScene.LAYOUTS, function () { dirty = true; kick(); });
+  // Eine Grössenänderung löscht den Canvas: sofort neu zeichnen, nicht erst im nächsten Bild
+  var ready = false;
+  var stage = window.RSCanvas.createStage($("cv"), $("stage"), window.RSScene.LAYOUTS, function () { redrawNow(); });
   function applyFonts() { stage.setFonts(pal.colors.fontUi, pal.colors.fontTitle); }
   applyFonts();
   var CV_LABEL = $("cv").getAttribute("aria-label");
@@ -250,7 +252,17 @@
     if (moving) rafId = requestAnimationFrame(frame); else last = null;
   }
   function kick() { dirty = true; if (rafId === null) rafId = requestAnimationFrame(frame); }
+  function redrawNow() { if (ready) draw(performance.now()); kick(); }
 
-  window.RSCanvas.loadFonts(['20px "Patrick Hand"', '12px "Raleway"', '600 12px "Raleway"'], 1500).then(kick);
-  kick();
+  // Erstes Bild sofort zeichnen, dann bei jedem Anlass erneut, bei dem der Canvas leer sein könnte:
+  // Seite fertig geladen, Schriften bereit, Tab wieder sichtbar (Chrome verwirft Canvas-Inhalte im Hintergrund),
+  // Canvas wiederhergestellt, Seite aus dem Verlauf zurück.
+  ready = true;
+  redrawNow();
+  window.RSCanvas.loadFonts(['20px "Patrick Hand"', '12px "Raleway"', '600 12px "Raleway"'], 1500).then(redrawNow);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(redrawNow);
+  window.addEventListener("load", redrawNow);
+  window.addEventListener("pageshow", redrawNow);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) redrawNow(); });
+  $("cv").addEventListener("contextrestored", redrawNow);
 })();

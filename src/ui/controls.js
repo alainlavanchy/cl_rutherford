@@ -11,7 +11,7 @@
 
   var state = { model: "kern", mat: "au", rate: 20000, running: false, bursting: false };
   var S = { kern: RS.newStats(), thomson: RS.newStats() };
-  var dots = [], bigs = [], tracks = [], DOT_CAP = 14000, BIG_CAP = 400, TRACK_CAP = 10;
+  var dots = [], bigs = [], tracks = [], DOT_CAP = 14000, BIG_CAP = 60,   /* höchstens 60 grosse Blitze gleichzeitig, damit sich der Kreis bei hoher Rate nicht füllt */ TRACK_CAP = 10;
   var stream = Stream.createStream(), carry = Stream.createCarry();
 
   function $(id) { return document.getElementById(id); }
@@ -50,17 +50,29 @@
   function draw(now) {
     if (lupe.state.open) { lupe.draw(pal.colors, now); dirty = false; return; }
     window.RSScene.draw(stage, pal.colors, {
-      model: state.model, thick: thick(), S: S, dots: dots, bigs: bigs, tracks: tracks,
+      model: state.model, thick: thick(), S: S, dots: dots, bigs: bigs, tracks: tracks, reduce: reduce,
       flights: stream.list(), now: now
     });
     dirty = false;
   }
 
   // ----- Treffer -----
+  // Treffer mit Zeitpunkt: die Blitze verglimmen (RSScene.FLASH, RSScene.BIG)
   function land(a, big) {
-    if (big) { if (bigs.length < BIG_CAP) bigs.push(a); tracks.push(a); while (tracks.length > TRACK_CAP) tracks.shift(); }
-    else { dots.push(a); if (dots.length > DOT_CAP) dots.splice(0, dots.length - DOT_CAP); }
+    var t = performance.now();
+    if (big) { bigs.push({ a: a, t: t }); if (bigs.length > BIG_CAP) bigs.shift(); tracks.push(a); while (tracks.length > TRACK_CAP) tracks.shift(); }
+    else { dots.push({ a: a, t: t }); if (dots.length > DOT_CAP) dots.splice(0, dots.length - DOT_CAP); }
     dirty = true;
+  }
+  // Verglommene Blitze entfernen; true, solange noch welche leuchten
+  function prune(now) {
+    if (reduce) return false;
+    var F = window.RSScene.FLASH, B = window.RSScene.BIG, fl = F.hold + F.fade, bl = B.hold + B.fade, n = 0;
+    while (n < dots.length && now - dots[n].t >= fl) n++;
+    if (n) dots.splice(0, n);
+    n = 0; while (n < bigs.length && now - bigs[n].t >= bl) n++;
+    if (n) bigs.splice(0, n);
+    return dots.length > 0 || bigs.length > 0;
   }
   // Bei kleiner Rate fliegt jedes Teilchen einzeln; der Treffer erscheint bei der Ankunft (stream.js).
   function add(res, fly, frameMs, now) {
@@ -232,7 +244,8 @@
     }
     stream.land(now, land);
     lupe.tick(dtMs / 1000, now);
-    var moving = state.running || stream.size() > 0 || lupe.animating(now);
+    var glowing = prune(now);
+    var moving = state.running || stream.size() > 0 || glowing || lupe.animating(now);
     if (moving || dirty) draw(now);
     if (moving) rafId = requestAnimationFrame(frame); else last = null;
   }

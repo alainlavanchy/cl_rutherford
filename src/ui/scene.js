@@ -1,28 +1,33 @@
 /**
  * Hauptansicht: Quelle, Folie, kreisförmiger Schirm, Balken je Richtung, Blitze,
  * Flugbahnen, fliegende Teilchen, Atom-Kärtchen und Diagramm.
- * Farben (Entscheid 2026-11-05): Szene im Leitton (Pflaume): Blitze, Flugbahnen, fliegende
- * Teilchen, Balken. Quelle, Folie und Schirm in Tusche, Hilfslinien als Haarlinie.
- * Starke Ablenkung (über 45°) = grösserer, voller Punkt ohne Ring; die Grösse ist die zweite
- * Information neben der Deckkraft.
+ * Farben: Flugbahnen, fliegende Teilchen und Balken im Leitton (Pflaume). Lichtblitze auf dem
+ * Schirm in --lab-flash (Komplementärton, Entscheid 2026-11-06). Quelle, Folie, Schirm in Tusche.
+ * Starke Ablenkung (über 45°) = grösserer Punkt mit feiner Tuschelinie (Grösse als zweite Information).
+ * Blitze verglimmen: kleine nach FLASH.hold + FLASH.fade, grosse nach BIG.hold + BIG.fade.
+ * Die Verteilung bleibt als Balkenkranz aussen stehen. Bei reduzierter Bewegung kein Ausblenden.
  */
 (function (root) {
   "use strict";
   var LAYOUTS = {
     wide: {
       name: "wide", W: 960, H: 500, CX: 330, CY: 250, R: 165, SX: 50,
-      head: [[14, 20, "Schirm: jeder Punkt ein Blitz."], [14, 37, "Balken aussen: Zahl der Teilchen je Richtung (logarithmisch)."]],
+      head: [[14, 20, "Schirm: jeder Punkt ein Blitz, er verglimmt nach kurzer Zeit."], [14, 37, "Balken aussen: Zahl der Teilchen je Richtung (logarithmisch)."]],
       atom: { x: 668, y: 100, tx: 722 },
       chart: { x0: 650, x1: 925, y0: 240, y1: 440 }
     },
     narrow: {
       name: "narrow", W: 520, H: 880, CX: 285, CY: 285, R: 160, SX: 36,
-      head: [[12, 22, "Schirm: jeder Punkt ein Blitz."], [12, 42, "Balken aussen: Zahl der Teilchen"], [12, 62, "je Richtung (logarithmisch)."]],
+      head: [[12, 22, "Schirm: jeder Punkt ein Blitz,"], [12, 42, "er verglimmt nach kurzer Zeit."], [12, 62, "Balken aussen: Zahl der Teilchen"], [12, 82, "je Richtung (logarithmisch)."]],
       atom: { x: 64, y: 540, tx: 118 },
       chart: { x0: 120, x1: 495, y0: 700, y1: 810 }
     }
   };
   var FLIGHT_MS = 1200;
+  var FLASH = { hold: 1000, fade: 2000 };   // ms: kleiner Blitz sichtbar, dann ausblenden
+  var BIG = { hold: 3000, fade: 1500 };     // ms: starke Ablenkung bleibt etwas länger stehen
+  // Deckkraft eines Blitzes nach seinem Alter (ms); 0 = verschwunden
+  function flashAlpha(age, cfg) { return age <= cfg.hold ? 1 : Math.max(0, 1 - (age - cfg.hold) / cfg.fade); }
 
   function pos(L, alpha, r) { r = r || L.R; return [L.CX + r * Math.cos(alpha), L.CY - r * Math.sin(alpha)]; }
 
@@ -82,16 +87,30 @@
     v.tracks.forEach(function (al) { var p = pos(L, al); ctx.beginPath(); ctx.moveTo(L.SX + 20, L.CY); ctx.lineTo(L.CX, L.CY); ctx.lineTo(p[0], p[1]); ctx.stroke(); });
     ctx.globalAlpha = 1;
 
-    // Blitze auf dem Schirm: kleine Punkte, halb deckend, als ein Pfad (schnell auch bei 14 000 Punkten)
-    if (v.dots.length) {
-      ctx.beginPath();
-      for (var i = 0; i < v.dots.length; i++) { var p2 = pos(L, v.dots[i]); ctx.rect(p2[0] - 1.5, p2[1] - 1.5, 3, 3); }
-      ctx.fillStyle = pal.accent; ctx.globalAlpha = 0.45; ctx.fill(); ctx.globalAlpha = 1;
+    // Blitze auf dem Schirm, nach Deckkraft in 8 Stufen gebündelt (ein Pfad je Stufe, schnell auch bei 14 000 Punkten)
+    var STEPS = 8, buckets = [], i, k;
+    for (k = 0; k < STEPS; k++) buckets.push([]);
+    for (i = 0; i < v.dots.length; i++) {
+      var al0 = v.reduce ? 1 : flashAlpha(v.now - v.dots[i].t, FLASH);
+      if (al0 > 0) buckets[Math.min(STEPS - 1, Math.floor(al0 * STEPS))].push(v.dots[i].a);
     }
-    // Starke Ablenkung (über 45°): grösserer, voller Punkt, ohne Ring
-    ctx.fillStyle = pal.accent; ctx.beginPath();
-    for (var j = 0; j < v.bigs.length; j++) { var q = pos(L, v.bigs[j]); ctx.moveTo(q[0] + 4.5, q[1]); ctx.arc(q[0], q[1], 4.5, 0, Math.PI * 2); }
-    ctx.fill();
+    ctx.fillStyle = pal.flash;
+    for (k = 0; k < STEPS; k++) {
+      if (!buckets[k].length) continue;
+      ctx.beginPath();
+      buckets[k].forEach(function (a) { var p2 = pos(L, a); ctx.rect(p2[0] - 1.6, p2[1] - 1.6, 3.2, 3.2); });
+      ctx.globalAlpha = 0.85 * (k + 1) / STEPS; ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    // Starke Ablenkung (über 45°): grösserer Blitz mit feiner Tuschelinie
+    for (var j = 0; j < v.bigs.length; j++) {
+      var alb = v.reduce ? 1 : flashAlpha(v.now - v.bigs[j].t, BIG);
+      if (alb <= 0) continue;
+      var q = pos(L, v.bigs[j].a);
+      ctx.globalAlpha = alb; ctx.fillStyle = pal.flash; ctx.strokeStyle = pal.line; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(q[0], q[1], 4.8, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
 
     // Fliegende Teilchen
     ctx.fillStyle = pal.accent;
@@ -119,5 +138,5 @@
     root.RSChart.drawChart(stage, L.chart, v.S, pal);
   }
 
-  root.RSScene = { LAYOUTS: LAYOUTS, draw: draw, FLIGHT_MS: FLIGHT_MS };
+  root.RSScene = { LAYOUTS: LAYOUTS, draw: draw, FLIGHT_MS: FLIGHT_MS, FLASH: FLASH, BIG: BIG };
 })(window);

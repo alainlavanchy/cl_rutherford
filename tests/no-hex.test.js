@@ -21,7 +21,11 @@ test("keine Hex-, rgb()- oder hsl()-Farben in index.html, assets/*.css, src/**/*
     .filter(f => fs.existsSync(f));
   const bad = [];
   for (const f of list) {
+    let inTokens = false;   // Token-Definition des Labs (assets/lab.css) ist erlaubt
     fs.readFileSync(f, "utf8").split(/\r?\n/).forEach((line, i) => {
+      if (/Token-Definition \(Lab\)/.test(line)) inTokens = true;
+      if (/Ende Token-Definition/.test(line)) { inTokens = false; return; }
+      if (inTokens) return;
       // Hex-Farben (#abc, #abcd, #aabbcc, #aabbccdd); HTML-Entitäten wie &#8239; zählen nicht
       if (/(?<![&\w])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\w-])/.test(line)) bad.push(f + ":" + (i + 1));
       if (/\b(rgba?|hsla?)\(/.test(line)) bad.push(f + ":" + (i + 1));

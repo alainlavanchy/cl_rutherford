@@ -12,6 +12,12 @@
 
 /* Normale Ziffern, auch im Canvas: Chrome übernimmt die Einstellung vom Canvas-Element */
 body { font-feature-settings: "lnum"; }
+
+/* Token-Definition (Lab) – einzige Stelle mit Farbwerten in diesem Lab.
+ * --lab-flash: Farbe der Lichtblitze auf dem Schirm, Komplementärton zu Pflaume (Entscheid Alain 2026-11-06).
+ * Gleicher Wert in Hell und Dunkel. Änderungsbedarf: gehört als Token in die Basis-CSS. */
+:root { --lab-flash: #e2ae6c; }
+/* Ende Token-Definition */
 /* .ui-label setzt in der Basis-CSS keine Schrift; als <span> erbte es sonst die Serif */
 .ui-label, output { font-family: var(--font-ui); }
 [hidden] { display: none !important; }

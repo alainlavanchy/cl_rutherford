@@ -15,6 +15,7 @@
     surface: "--color-surface",
     surface2: "--color-surface-2",
     series2: "--data-5",
+    flash: "--lab-flash",       // Lichtblitze auf dem Schirm (Token in assets/lab.css)
     fontTitle: "--font-title",
     fontUi: "--font-ui"
   };

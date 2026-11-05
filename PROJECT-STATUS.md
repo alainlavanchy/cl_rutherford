@@ -7,9 +7,9 @@ Wird nach jeder Sitzung aktualisiert (Anleitung: `prompts/status-update.md`). Fe
 | Stand | 2026-11-05 |
 | Spezifikation | `docs/rutherford-lab-minispec.md` (Entwurf) |
 | Auftrag | `prompts/01-rutherford-lab.md` |
-| Letzter erfasster Commit | b20002d |
-| Aktueller Fokus | Schritt 4 erledigt: Lupe |
-| Nächster Schritt | Schritt 5: Betriebsart und Lizenz (Oberfläche) |
+| Letzter erfasster Commit | 005b4d4 |
+| Aktueller Fokus | Schritt 5 erledigt: Betriebsart und Lizenz |
+| Nächster Schritt | Schritt 6: Design-Abnahme und Barrierefreiheit |
 
 ## Bauplan (Auftrag, Abschnitt 9)
 
@@ -17,7 +17,7 @@ Wird nach jeder Sitzung aktualisiert (Anleitung: `prompts/status-update.md`). Fe
 - [x] 2. Kern und Tests, ohne Oberfläche
 - [x] 3. Hauptansicht
 - [x] 4. Lupe
-- [ ] 5. Betriebsart und Lizenz (Logik und Tests bereits in Schritt 2; Oberfläche offen)
+- [x] 5. Betriebsart und Lizenz
 - [ ] 6. Design-Abnahme (Design-Skills 12) und Barrierefreiheit
 
 ## Tests (Auftrag, Abschnitt 5)
@@ -31,7 +31,7 @@ Wird nach jeder Sitzung aktualisiert (Anleitung: `prompts/status-update.md`). Fe
 | 5 | Median wächst mit Dicke und Z, sinkt mit Energie; Werte auf 15 % | erfüllt | `tests/core.test.js` (fc12b4f) |
 | 6 | Gleichmässiger Strom: 200/s bei 60 fps etwa 240 in jedem Bild | erfüllt | `tests/stream.test.js` (fc12b4f); Spanne 236 bis 244 |
 | 7 | Messreihe: acht Werte, Durchschnitt 233 | erfüllt | `tests/messreihe.test.js` (fc12b4f); Tabelle vom Original bestätigt (O-01) |
-| 8 | Lizenzbetrieb: neun Fälle | teilweise | Logik in `tests/license.test.js` (fc12b4f); Oberfläche in Schritt 5 |
+| 8 | Lizenzbetrieb: neun Fälle | erfüllt | Logik `tests/license.test.js` (fc12b4f); Oberfläche `tests/browser/betrieb-ui.js` im Browser, 9 von 9 (1d98d2b) |
 
 ## Offene Punkte
 
@@ -51,6 +51,9 @@ Wird nach jeder Sitzung aktualisiert (Anleitung: `prompts/status-update.md`). Fe
 | O-12 | Lupe schmal: Legende im Canvas unter der Linse (statt HTML-Liste wie im Plan); der Erklärtext neben der Legende entfällt schmal, er steht im Panel darunter | Sitzung 3 | 2026-11-05 | zur Kenntnis |
 | O-13 | `prefers-reduced-motion` in der Lupe (Endzustand, kein Strahl, Einzelschritte mit «Teilchen losschicken») gebaut, im Browser nicht geprüft | Sitzung 3 | 2026-11-05 | offen, Schritt 6 |
 | O-14 | Thomson-Lupe: Faktor als grosse Zahl «× 2000» mit der Zeile «Ablenkung so stark vergrössert gezeichnet» (Demo: nur im Untertitel und in der Legende) | Sitzung 3 | 2026-11-05 | zur Kenntnis |
+| O-16 | Token `--lab-flash` (#e2ae6c) steht im Token-Block von `assets/lab.css` (Muster wie `--cpk-*` im Nachbarlab); gehört in die Basis-CSS. Kontrast auf hellem Papier etwa 1,9 : 1, darum grosse Blitze mit Tuschelinie | Sitzung 4 | 2026-11-06 | offen, Änderungsbedarf Basis-CSS |
+| O-17 | Zeiten der Blitze sind eigene Wahl: klein 1 s sichtbar und 2 s ausblenden, gross 3 s und 1,5 s, höchstens 60 grosse gleichzeitig. Text im Bild «er verglimmt nach kurzer Zeit» neu | Sitzung 4 | 2026-11-06 | offen (Alain: bestätigen) |
+| O-15 | Browser-Test der Betriebsart läuft nicht mit `node --test` (keine DOM-Abhängigkeit erlaubt), sondern im Browser auf dem lokalen Server; Aufruf im Kopf von `tests/browser/betrieb-ui.js` | Sitzung 4 | 2026-11-05 | zur Kenntnis |
 
 Erledigte Punkte bleiben stehen und werden mit Datum und Hash als erledigt markiert.
 
@@ -69,6 +72,7 @@ Erledigte Punkte bleiben stehen und werden mit Datum und Hash als erledigt marki
 | 2026-11-05 | Farbkonzept A (Ocker für Blitze) umgesetzt und wieder verworfen: passt besonders im Dunkelmodus nicht |
 | 2026-11-05 | Szene nur in Pflaume (Blitze, Flugbahnen, fliegende Teilchen, Balken); starke Ablenkung als grösserer voller Punkt ohne Ring (Abweichung vom Auftrag §4.3 «Ringe für Ablenkungen über 45 Grad») |
 | 2026-11-05 | Wortlaut der Hinweise «Flugbahn» und «Lupe» ohne «rot» bestätigt |
+| 2026-11-06 | Lichtblitze in #e2ae6c (Komplementärton) als Lab-Token `--lab-flash`; Blitze verglimmen nach kurzer Zeit, die Verteilung bleibt als Balkenkranz |
 
 ## Änderungsbedarf an der Spezifikation
 
@@ -78,6 +82,24 @@ Erledigte Punkte bleiben stehen und werden mit Datum und Hash als erledigt marki
 ## Sitzungsprotokoll
 
 Neueste Sitzung oben. Neue Blöcke kommen direkt unter diese Zeile.
+
+### Sitzung 4: 2026-11-05, Schritt 5 (Betriebsart und Lizenz)
+
+- Prompt: `prompts/01-rutherford-lab.md`, Schritt 5
+- Erledigt:
+  - Gesperrte Folien mit Schloss-SVG, «Lizenz» und gestricheltem Rand; Regler gesperrt auf 1,2 µm und 7,7 MeV mit Abzeichen; Messreihe ersetzt durch Hinweis mit Schloss; Hinweis beim Klick auf gesperrte Folie; Angebotstext; Betriebsart im Fuss; Link-Parameter `modus` in den Hinweisen (307f3bb)
+  - Browser-Test der neun Fälle aus Auftrag §6, alle bestanden (1d98d2b)
+  - Lichtblitze in `--lab-flash` (#e2ae6c), Blitze verglimmen, höchstens 60 grosse, Text im Bild ergänzt (005b4d4)
+- Nicht erledigt oder verschoben:
+  - Schritt 6 (Abnahme), O-13
+- Tests: 42 bestanden, 0 fehlgeschlagen (`node --test`); Browser-Test Betriebsart 9 von 9
+- Commits:
+
+  | Hash | Nachricht |
+  | --- | --- |
+  | 307f3bb | feat: Lizenzbetrieb in der Oberfläche mit Schloss, gesperrten Reglern und Hinweis |
+  | 1d98d2b | test: Browser-Test der Betriebsart, neun Fälle |
+  | 005b4d4 | feat: Lichtblitze in --lab-flash, Blitze verglimmen, höchstens 60 grosse |
 
 ### Sitzung 3: 2026-11-05, Farbkonzept A und Schritt 4 (Lupe)
 

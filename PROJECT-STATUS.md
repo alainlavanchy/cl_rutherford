@@ -7,15 +7,15 @@ Wird nach jeder Sitzung aktualisiert (Anleitung: `prompts/status-update.md`). Fe
 | Stand | 2026-11-05 |
 | Spezifikation | `docs/rutherford-lab-minispec.md` (Entwurf) |
 | Auftrag | `prompts/01-rutherford-lab.md` |
-| Letzter erfasster Commit | fc12b4f |
-| Aktueller Fokus | Schritt 2 erledigt: Kern und Tests |
-| Nächster Schritt | Schritt 3: Hauptansicht (Schirm, Anzeigen, Diagramm, Zeitraffer, Historisches) |
+| Letzter erfasster Commit | 839b9b3 |
+| Aktueller Fokus | Schritt 3 erledigt: Hauptansicht |
+| Nächster Schritt | Schritt 4: Lupe |
 
 ## Bauplan (Auftrag, Abschnitt 9)
 
 - [x] 1. Plan (bestätigt 2026-11-05)
 - [x] 2. Kern und Tests, ohne Oberfläche
-- [ ] 3. Hauptansicht
+- [x] 3. Hauptansicht
 - [ ] 4. Lupe
 - [ ] 5. Betriebsart und Lizenz (Logik und Tests bereits in Schritt 2; Oberfläche offen)
 - [ ] 6. Design-Abnahme (Design-Skills 12) und Barrierefreiheit
@@ -41,7 +41,12 @@ Wird nach jeder Sitzung aktualisiert (Anleitung: `prompts/status-update.md`). Fe
 | O-02 | Toleranz r_min: Spezifikation §6 nennt 0,05 %, gemessen 0,0504 % bei b = 0. Test mit 0,1 % nach Auftrag §5.2 | Sitzung 1 | 2026-11-05 | erledigt 2026-11-05: 0,1 % bestätigt (Alain); Spezifikation angleichen |
 | O-03 | Seed: Die Demo nennt 210 Treffer über 90° bei 4 Mio.; der Kern mit Seed 1911 in einem Lauf ergibt 194. Beides innerhalb 3 σ (194 ± 14); die 210 entstanden vermutlich durch den Ablauf in Stücken in der Demo | Sitzung 1 | 2026-11-05 | zur Kenntnis |
 | O-04 | Basis-CSS: neue Klassen (Lupen-Knopf, Schloss, Topbar, Footer, Legal) vorerst in `assets/lab.css` | Plan | 2026-11-05 | offen, Änderungsbedarf Basis-CSS |
-| O-05 | `file://` und Tablet prüfen (Browser-Erweiterung öffnet keine Datei-URLs) | Plan | 2026-11-05 | offen (Alain), ab Schritt 3 |
+| O-05 | `file://` und Tablet prüfen (Browser-Erweiterung öffnet keine Datei-URLs) | Plan | 2026-11-05 | offen (Alain) |
+| O-06 | Normale Ziffern im Canvas: Chrome übernimmt `font-feature-settings: "lnum"` vom Canvas-Element (gemessen: «3» ohne Unterlänge). Firefox und Safari ungeprüft | Sitzung 2 | 2026-11-05 | offen (Alain: in Firefox/Safari ansehen) |
+| O-07 | Schmale Ansicht nur simuliert (Seitenbreite per Skript auf 358 px), weil sich das Browserfenster nicht verkleinern liess; echte Handy-Ansicht ungeprüft | Sitzung 2 | 2026-11-05 | offen (Alain) |
+| O-08 | Hinweistext «Flugbahn»: Demo sagt «Die roten Linien», im Lab «Die Linien mit Ring am Schirm» (kein Rot mehr in der Szene) | Sitzung 2 | 2026-11-05 | offen (Alain: Wortlaut bestätigen) |
+| O-09 | Fuss nennt «Anregung: PhET «Rutherford Scattering» (CC BY). Eigene Umsetzung ohne übernommenen Code.» nach Spezifikation; rechtliche Prüfung offen | Sitzung 2 | 2026-11-05 | offen (Alain) |
+| O-10 | Legal-Overlay lädt `/data/legal.json` (Wurzel der Domain, nach SKILL-labs); lokal und unter `file://` erscheint die Fehlermeldung | Sitzung 2 | 2026-11-05 | zur Kenntnis |
 
 Erledigte Punkte bleiben stehen und werden mit Datum und Hash als erledigt markiert.
 
@@ -66,6 +71,25 @@ Erledigte Punkte bleiben stehen und werden mit Datum und Hash als erledigt marki
 ## Sitzungsprotokoll
 
 Neueste Sitzung oben. Neue Blöcke kommen direkt unter diese Zeile.
+
+### Sitzung 2: 2026-11-05, Schritt 3 (Hauptansicht)
+
+- Prompt: `prompts/01-rutherford-lab.md`, Schritt 3
+- Erledigt:
+  - Entscheide zu O-01 (Messreihe vom Original bestätigt) und O-02 (0,1 %) (ec53e0e)
+  - Hauptansicht: Seitenkopf, Topbar, Theme ohne Speicherung, Modellwahl, Schirm mit Balken und Ringen, Flugbahnen, Einzelteilchen bis 200 pro s, Zeitraffer, «+ 1 Million sofort» in Stücken mit Fortschritt, Tabelle, Ergebnissatz, Vergleich, Diagramm beider Modelle, Hinweise, historische Werte mit Messreihe aus dem Kern, Link-Parameter `modell`, `material`, `dicke`, `energie`, `theme`, `start`, Fuss und Overlay «Rechtliches» (839b9b3)
+  - Canvas skalierbar mit Pixeldichte, breit (960 × 500) und schmal (520 × 880, Diagramm unter dem Schirm), Mindestschriftgrösse 12 px bzw. 18 px (839b9b3)
+  - Browserprüfung Chrome (localhost, 1280 px): Hell und Dunkel, Thomson und Kern mit 1 Mio., Strom bei 200 pro s, Overlay mit Fokus und Escape, keine Konsolenfehler (ohne Commit)
+- Nicht erledigt oder verschoben:
+  - Lupe (Schritt 4), Anzeige der Lizenzsperren (Schritt 5)
+  - O-06 bis O-08
+- Tests: 42 bestanden, 0 fehlgeschlagen (`node --test`)
+- Commits:
+
+  | Hash | Nachricht |
+  | --- | --- |
+  | ec53e0e | test: Messreihe vom Original bestätigt |
+  | 839b9b3 | feat: Hauptansicht mit Schirm, Diagramm, Zeitraffer, Tabelle und Historischem |
 
 ### Sitzung 1: 2026-11-05, Plan und Schritt 2 (Kern und Tests)
 

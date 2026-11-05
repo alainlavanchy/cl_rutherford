@@ -1,0 +1,68 @@
+# ===== Zugangsdaten und Schlüssel (nie committen) =====
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+secrets/
+supabase/.env
+supabase/.temp/
+supabase/.branches/
+
+# ===== Node =====
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm/
+coverage/
+.nyc_output/
+
+# ===== Testresultate und Browsertests =====
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+*.tmp
+
+# ===== Build-Ausgaben (falls später doch ein Build dazukommt) =====
+dist/
+build/
+
+# ===== Arbeitsdateien =====
+tmp/
+scratch/
+screenshots-tmp/
+*.bak
+*.orig
+*.rej
+*~
+
+# ===== Claude Code (lokal) =====
+.claude/settings.local.json
+.claude/*.local.*
+CLAUDE.local.md
+
+# ===== Editor =====
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# ===== Betriebssystem =====
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+# macOS
+.DS_Store
+
+# ===== Bewusst NICHT ignoriert =====
+# prompts/                   Rückverfolgbarkeit der Aufträge an Claude Code
+# docs/                      Spezifikation, Referenzdemo (docs/referenz), Screenshots (docs/screenshots)
+# PROJECT-STATUS.md          Protokoll nach jeder Sitzung
+# CLAUDE.md                  Konventionen für Claude Code
+# package-lock.json          gleiche Versionen für alle
+# .vscode/extensions.json    empfohlene Erweiterungen

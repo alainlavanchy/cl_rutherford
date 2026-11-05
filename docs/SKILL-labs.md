@@ -510,7 +510,7 @@ cogniviolabs.com/lab/[fach]/[slug]/lehrperson ← LP-Seite
 |---|---|
 | Biologie | `bio` |
 | Physik | `physik` |
-| Chemie | `chemie` |
+| Chemie | `chem` |
 | Mathematik | `mathe` |
 | Natur & Technik (allg.) | `nt` |
  

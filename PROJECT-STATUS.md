@@ -74,7 +74,7 @@ Wird nach jeder Sitzung aktualisiert (Anleitung: `prompts/status-update.md`). Fe
 | O-18 | Favicon fehlt: Design-Skills 8 verlangt `favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` lokal, die Vorlage ist dort noch offen (13). Keine `<link rel="icon">` gesetzt, damit kein 404 entsteht | Sitzung 5 | 2026-11-06 | offen (Alain: Vorlage) |
 | O-19 | Fokusring der Basis-CSS (halbtransparenter Saum) ist auf gedrückten Knöpfen schwach; im Lab verstärkt (Lücke in `--color-bg`, Ring in `--color-signal`) | Sitzung 5 | 2026-11-06 | offen, Änderungsbedarf Basis-CSS |
 | O-20 | Reduzierte Bewegung nur simuliert (`matchMedia` ersetzt); mit echter Systemeinstellung ungeprüft. Ebenso Screenreader nicht geprüft | Sitzung 5 | 2026-11-06 | offen (Alain) |
-| O-21 | Fach-Slug `chem` weicht von SKILL-labs §6 ab (`chemie`); das Nachbarlab verlinkt im Breadcrumb `/lab/chemie`. Übersichtsseite `/lab/chem/` und Lehrpersonen-Seite bestehen noch nicht | Sitzung 6 | 2026-11-06 | offen (Alain: SKILL-labs und Nachbarlab angleichen) |
+| O-21 | Fach-Slug `chem` weicht von SKILL-labs §6 ab (`chemie`); das Nachbarlab verlinkt im Breadcrumb `/lab/chemie`. Übersichtsseite `/lab/chem/` und Lehrpersonen-Seite bestehen noch nicht | Sitzung 6 | 2026-11-06 | teilweise 2026-11-06: SKILL-labs (alle drei Kopien) und Breadcrumb im Nachbarlab auf `chem` angeglichen; Übersichts- und Lehrpersonen-Seite fehlen noch |
 
 Erledigte Punkte bleiben stehen und werden mit Datum und Hash als erledigt markiert.
 

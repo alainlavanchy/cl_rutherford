@@ -7,9 +7,9 @@ Wird nach jeder Sitzung aktualisiert (Anleitung: `prompts/status-update.md`). Fe
 | Stand | 2026-11-06 |
 | Spezifikation | `docs/rutherford-lab-minispec.md` (Entwurf) |
 | Auftrag | `prompts/01-rutherford-lab.md` |
-| Letzter erfasster Commit | 678ce78 |
-| Aktueller Fokus | Schritt 6 erledigt: Abnahme; alle Schritte des Auftrags gebaut |
-| Nächster Schritt | Offene Punkte mit Alain (Favicon, Basis-CSS, Handy/Tablet, `file://`, Firefox/Safari) |
+| Letzter erfasster Commit | c5d82ff |
+| Aktueller Fokus | Auftrag abgeschlossen: alle sechs Schritte gebaut, geprüft und gepusht |
+| Nächster Schritt | Offene Punkte mit Alain: Favicon (O-18), Basis-CSS (O-04, O-16, O-19), Handy/Tablet und `file://` (O-05), Firefox/Safari (O-06), echte Bewegungs-Einstellung und Screenreader (O-20), Übersichts- und Lehrpersonen-Seite (O-21) |
 
 ## Bauplan (Auftrag, Abschnitt 9)
 
@@ -104,6 +104,27 @@ Erledigte Punkte bleiben stehen und werden mit Datum und Hash als erledigt marki
 ## Sitzungsprotokoll
 
 Neueste Sitzung oben. Neue Blöcke kommen direkt unter diese Zeile.
+
+### Sitzung 6: 2026-11-06, Adresse, Fach-Slug und Abschluss
+
+- Prompt: Rückmeldungen von Alain (Adresse, Fach-Slug, Abschluss)
+- Erledigt:
+  - Status Sitzung 5 (06a2229)
+  - Links auf `lab/chem/rutherford_goldfolie/` (Breadcrumb, Lehrpersonen-Seite), CLAUDE.md nachgeführt (9c66423); Entscheid und O-21 (0b69a41)
+  - Fach-Slug `chem` in SKILL-labs (alle drei Kopien), Status (ae5b15b); im Nachbarlab Breadcrumb und SKILL-labs (f39a127, Repo `cl_atome_und_molekuele`); Kopie im Hauptordner ohne Git geändert
+  - README mit Aufbau, Start, Tests, Link-Parametern, Betriebsart (c5d82ff)
+- Nicht erledigt oder verschoben:
+  - Offene Punkte siehe Kopf (Nächster Schritt)
+  - Nachbarlab: Test «Zustand bei 21 °C …» schlägt fehl (16 statt 13 Stoffe mit Werten), vermutlich wegen neuer Stoffwerte (affb908); dort nicht geändert
+- Tests: 43 bestanden, 0 fehlgeschlagen (`node --test`)
+- Commits:
+
+  | Hash | Nachricht |
+  | --- | --- |
+  | 9c66423 | fix: Links auf lab/chem/rutherford_goldfolie |
+  | 0b69a41 | docs: URL-Entscheid und offener Punkt zum Fach-Slug |
+  | ae5b15b | docs: Fach-Slug chem in SKILL-labs, Status nachgeführt |
+  | c5d82ff | docs: README mit Aufbau, Start, Tests und Link-Parametern |
 
 ### Sitzung 5: 2026-11-06, Startbild und Schritt 6 (Abnahme)
 

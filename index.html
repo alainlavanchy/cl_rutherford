@@ -78,11 +78,13 @@
         <label class="ui-label" for="thick">Dicke</label>
         <input id="thick" type="range" min="0.2" max="3" step="0.1" value="1.2">
         <output id="thickOut" for="thick">1,2 µm</output>
+        <span class="badge lab-lock" id="thickLock" hidden></span>
       </div>
       <div class="lab-slider">
         <label class="ui-label" for="energy">Energie</label>
         <input id="energy" type="range" min="3" max="8" step="0.1" value="7.7">
         <output id="energyOut" for="energy">7,7 MeV</output>
+        <span class="badge lab-lock" id="energyLock" hidden></span>
       </div>
     </div>
     <div class="lab-row">
@@ -102,6 +104,7 @@
       </div>
     </div>
     <p class="lab-progress" id="burstInfo" role="status"></p>
+    <p class="callout lab-hint" id="lizenzHinweis" role="status" hidden></p>
   </div>
 
   <div class="card lab-controls lab-card" id="lupePanel" hidden>
@@ -156,10 +159,10 @@
       </table>
       <p>Aufgabe für Fortgeschrittene: Trage z gegen die Atommasse auf und finde heraus, dass z / A<sup>3/2</sup> etwa konstant ist.</p>
     </div>
-    <p id="messreiheLock" hidden>Die Messreihe zu acht Metallen mit der Aufgabe gehört zur Lizenz.</p>
+    <p id="messreiheLock" class="lab-lock-line" hidden></p>
   </details>
 
-  <p class="lab-links">Für Screenshots: Link mit <code>?modell=kern&amp;material=au&amp;dicke=1.2&amp;energie=7.7&amp;theme=dark&amp;start=1000000</code> (der Wert bei <code>start</code> ist die Zahl der sofort gerechneten Teilchen). Die Lupe öffnet mit <code>&amp;lupe=1</code>, dazu <code>&amp;strahl=0</code> (ohne Strahl), <code>&amp;auto=0</code> (Bahn bleibt stehen), <code>&amp;b=15</code> (Stossparameter in fm), <code>&amp;t=0.5</code> (Stand des Teilchens von 0 bis 1, ohne Animation), <code>&amp;billard=1</code> und <code>&amp;ziel=1</code>.</p>
+  <p class="lab-links">Für Screenshots: Link mit <code>?modell=kern&amp;material=au&amp;dicke=1.2&amp;energie=7.7&amp;theme=dark&amp;start=1000000</code> (der Wert bei <code>start</code> ist die Zahl der sofort gerechneten Teilchen). Mit <code>&amp;modus=lizenz</code> zeigt die Seite den Lizenzbetrieb ohne aktive Lizenz (der Link kann nur verschärfen). Die Lupe öffnet mit <code>&amp;lupe=1</code>, dazu <code>&amp;strahl=0</code> (ohne Strahl), <code>&amp;auto=0</code> (Bahn bleibt stehen), <code>&amp;b=15</code> (Stossparameter in fm), <code>&amp;t=0.5</code> (Stand des Teilchens von 0 bis 1, ohne Animation), <code>&amp;billard=1</code> und <code>&amp;ziel=1</code>.</p>
 </main>
 
 <footer class="page-footer">
@@ -171,6 +174,7 @@
   </div>
   <p>Anregung: PhET «Rutherford Scattering» (CC BY). Eigene Umsetzung ohne übernommenen Code.</p>
   <p>© 2026 Cogniviolabs · Alain Nicolas Lavanchy · Kanton Aargau</p>
+  <p id="betriebInfo"></p>
 </footer>
 
 <div class="overlay" id="overlayLegal" role="dialog" aria-modal="true" aria-labelledby="legalTitle" hidden>

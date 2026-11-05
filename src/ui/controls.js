@@ -119,6 +119,31 @@
     $("energyOut").textContent = de(energy(), 1) + " MeV";
   }
 
+  // ----- Betriebsart und Lizenz (Logik: src/core/license.js; Sperren im Browser sind nur eine Hürde) -----
+  var LOCK_SVG = '<svg class="lab-lock-ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
+  function hinweis(text) {
+    var el = $("lizenzHinweis"); el.hidden = false; el.textContent = text + " ";
+    if (window.BETRIEB.lizenzUrl) { var a = document.createElement("a"); a.href = window.BETRIEB.lizenzUrl; a.textContent = "Lizenz ansehen"; el.appendChild(a); }
+  }
+  function applyLizenz() {
+    $("betriebInfo").textContent = betrieb.info;
+    if (!betrieb.begrenzt) return;
+    document.querySelectorAll("[data-mat]").forEach(function (b) {
+      if (betrieb.folieErlaubt(b.getAttribute("data-mat"))) return;
+      var name = b.textContent.trim();
+      b.classList.add("is-locked"); b.setAttribute("aria-disabled", "true");
+      b.setAttribute("aria-label", name + ", gehört zur Lizenz");
+      b.innerHTML = '<span>' + name + '</span>' + LOCK_SVG + '<span class="lab-lock-text">Lizenz</span>';
+    });
+    ["thick", "energy"].forEach(function (id) {
+      var el = $(id); el.value = id === "thick" ? betrieb.frei.dicke : betrieb.frei.energie; el.disabled = true;
+      var lock = $(id + "Lock"); lock.hidden = false; lock.innerHTML = LOCK_SVG + "Lizenz";
+    });
+    $("messreihe").hidden = true;
+    var ml = $("messreiheLock"); ml.hidden = false; ml.innerHTML = LOCK_SVG + "<span>" + window.RSLicense.TEXT.messreihe + "</span>";
+    hinweis(betrieb.angebot);
+  }
+
   // ----- Bedienung -----
   function group(sel, attr, val) {
     document.querySelectorAll(sel).forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute(attr) === val)); });
@@ -135,7 +160,7 @@
     if (b.hasAttribute("data-model")) setModel(b.getAttribute("data-model"));
     else if (b.hasAttribute("data-mat")) {
       var r = betrieb.waehleFolie(b.getAttribute("data-mat"));
-      if (!r.ok) return;   // Hinweis zur Lizenz folgt in Schritt 5
+      if (!r.ok) { hinweis(r.hinweis); return; }
       state.mat = b.getAttribute("data-mat"); group("[data-mat]", "data-mat", state.mat); reset();
     }
     else if (b.hasAttribute("data-rate")) { state.rate = parseInt(b.getAttribute("data-rate"), 10); group("[data-rate]", "data-rate", String(state.rate)); }
@@ -175,7 +200,7 @@
   if (lw.material) { state.mat = lw.material; group("[data-mat]", "data-mat", state.mat); }
   if (lw.dicke !== undefined) $("thick").value = lw.dicke;
   if (lw.energie !== undefined) $("energy").value = lw.energie;
-  messreihe(); sliders(); table();
+  applyLizenz(); messreihe(); sliders(); table();
   if (q.get("lupe") === "1") {
     lupe.state.showBil = q.get("billard") === "1"; lupe.state.showTgt = q.get("ziel") === "1";
     if (q.get("strahl") === "0") lupe.state.stream = false;

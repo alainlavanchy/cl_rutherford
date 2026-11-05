@@ -94,6 +94,14 @@ body { font-feature-settings: "lnum"; }
 .lab-lupe-info { font-size: var(--text-sm); max-width: var(--measure); }
 .lab-lupe-info p { margin: 0 0 var(--space-2); }
 
+/* Lizenz: Schloss als SVG plus Beschriftung (nie nur Farbe oder nur Symbol) */
+.lab-lock-ico { width: 14px; height: 14px; flex: none; }
+.lab-lock { display: inline-flex; align-items: center; gap: var(--space-1); }
+.btn.is-locked { opacity: 0.75; border-style: dashed; }
+.btn.is-locked .lab-lock-text { font-size: var(--text-xs); font-weight: 500; }
+.lab-lock-line { display: flex; align-items: center; gap: var(--space-2); }
+.lab-hint { margin: var(--space-2) 0 0; font-size: var(--text-sm); }
+
 /* ─── Bühne ───────────────────────────────────────────────────────── */
 
 .lab-scene { margin-bottom: var(--space-4); }

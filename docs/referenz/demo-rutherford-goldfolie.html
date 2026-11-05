@@ -1,0 +1,858 @@
+<!doctype html>
+<html lang="de" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goldfolienversuch: Thomson-Modell gegen Kernmodell</title>
+<style>
+  /* Tokens nach Design-Skills (Papier und Tinte). */
+  [data-theme="light"] {
+    --bg:#f3f2ee; --surface:#fbfaf7; --surface-2:#eae8e1;
+    --text:#1d1f1e; --text-soft:#5b5e5c; --border:#d9d8d2; --line:#3a3d3c;
+    --signal:#c23d22; --signal-text:#ffffff; --void-1:#fdfcfa;
+  }
+  [data-theme="dark"] {
+    --bg:#161716; --surface:#202221; --surface-2:#2a2d2b;
+    --text:#ece9e2; --text-soft:#a4a6a3; --border:#343735; --line:#ece9e2;
+    --signal:#e8654a; --signal-text:#161716; --void-1:#2f3331;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--text); font-family: "Source Serif 4", Georgia, "Times New Roman", serif; line-height: 1.5; }
+  .ui { font-family: Raleway, "Helvetica Neue", Arial, sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between;
+    padding: 12px 20px; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .brand { font-weight: 700; font-size: 1.1rem; }
+  .brand span { color: var(--text-soft); font-weight: 400; margin-left: 8px; font-size: .9rem; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+  .group { display: inline-flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--text-soft); }
+  .seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  button { font: inherit; font-size: .9rem; color: var(--text); background: var(--surface); border: 0; padding: 0 14px;
+    min-height: 44px; min-width: 44px; cursor: pointer; }
+  .seg button + button { border-left: 1px solid var(--border); }
+  .solo { border: 1px solid var(--border); border-radius: 8px; }
+  button[aria-pressed="true"] { background: var(--signal); color: var(--signal-text); }
+  button:focus-visible, input:focus-visible { outline: 3px solid var(--signal); outline-offset: 2px; }
+  main { max-width: 1040px; margin: 0 auto; padding: 16px 20px 28px; }
+  h1 { font-size: 1.15rem; margin: 4px 0 2px; }
+  .sub { color: var(--text-soft); font-size: .9rem; margin: 0 0 12px; }
+  .stage { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: var(--void-1); }
+  canvas { display: block; width: 100%; height: auto; }
+  .panel { margin-top: 12px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; }
+  .row + .row { margin-top: 8px; }
+  .sl { display: inline-flex; align-items: center; gap: 8px; font-size: .9rem; }
+  .sl input { width: 180px; height: 44px; accent-color: var(--signal); margin: 0; }
+  .sl output { min-width: 7ch; font-weight: 700; }
+  table { border-collapse: collapse; font-size: .9rem; }
+  th, td { text-align: right; padding: 4px 10px; border-bottom: 1px solid var(--border); }
+  th:first-child, td:first-child { text-align: left; }
+  th { font-weight: 600; color: var(--text-soft); }
+  tr.big td { font-weight: 700; }
+  .result { margin-top: 10px; font-size: 1.05rem; }
+  .compare { margin-top: 6px; font-size: .92rem; color: var(--text-soft); }
+  .notes { margin-top: 12px; display: grid; gap: 8px; font-size: .95rem; }
+  .note { border-left: 3px solid var(--border); padding: 2px 0 2px 12px; }
+  .note strong { font-family: Raleway, "Helvetica Neue", Arial, sans-serif; font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; color: var(--text-soft); display: block; }
+  .seg button.locked { opacity: .6; }
+  .lock-ico { width: 14px; height: 14px; margin-left: 6px; vertical-align: -2px; }
+  .lock-badge { font-size: .75rem; padding: 1px 7px; border: 1px solid var(--border); border-radius: 6px; color: var(--text-soft); }
+  input:disabled { opacity: .55; }
+  .hinweis { margin: 10px 0 0; font-size: .9rem; color: var(--text-soft); }
+  .lupe-btn { display: inline-flex; align-items: center; gap: 9px; min-height: 48px; padding: 0 18px 0 14px; border: 2px solid var(--signal);
+    border-radius: 10px; background: var(--surface); color: var(--text); font-weight: 700; font-size: .95rem; }
+  .lupe-btn[aria-pressed="true"] { background: var(--signal); color: var(--signal-text); }
+  .lupe-ico { flex: none; }
+  details { margin-top: 12px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; font-size: .92rem; }
+  summary { cursor: pointer; font-weight: 600; min-height: 32px; }
+  .foot { margin-top: 14px; color: var(--text-soft); font-size: .85rem; }
+</style>
+</head>
+<body>
+<header class="ui">
+  <div class="brand">cognivio labs<span>Rutherford-Lab</span></div>
+  <div class="controls">
+    <div class="group">Modell
+      <div class="seg" role="group" aria-label="Modell">
+        <button type="button" data-model="thomson" aria-pressed="false">Thomson (Rosinenkuchen)</button>
+        <button type="button" data-model="kern" aria-pressed="true">Kern (Rutherford)</button>
+      </div>
+    </div>
+    <div class="group">Theme
+      <div class="seg" role="group" aria-label="Theme">
+        <button type="button" data-theme-btn="light" aria-pressed="true">Hell</button>
+        <button type="button" data-theme-btn="dark" aria-pressed="false">Dunkel</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <h1>Goldfolienversuch: Wie lenkt eine Folie α-Teilchen ab?</h1>
+  <p class="sub">Vorhersage zuerst: Was erwartest du bei einer Million Teilchen im Thomson-Modell, was im Kernmodell? Dann starte, wähle den Zeitraffer und vergleiche.</p>
+
+  <div class="stage"><canvas id="cv" width="960" height="500" role="img"
+    aria-label="Quelle links, dünne Folie in der Mitte, kreisförmiger Schirm rundherum. Jeder Treffer erscheint als Punkt auf dem Schirm."></canvas></div>
+
+  <div class="panel ui">
+    <div class="row">
+      <div class="group">Folie
+        <div class="seg" role="group" aria-label="Material">
+          <button type="button" data-mat="au" aria-pressed="true">Gold</button>
+          <button type="button" data-mat="pt" aria-pressed="false">Platin</button>
+          <button type="button" data-mat="ag" aria-pressed="false">Silber</button>
+          <button type="button" data-mat="cu" aria-pressed="false">Kupfer</button>
+          <button type="button" data-mat="al" aria-pressed="false">Aluminium</button>
+        </div>
+      </div>
+      <button type="button" id="lupeBtn" class="lupe-btn" aria-pressed="false" aria-label="Lupe: ein einzelnes Atom ansehen">
+        <svg class="lupe-ico" viewBox="0 0 28 28" width="28" height="28" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.2"/>
+          <line x1="18.6" y1="18.6" x2="25.5" y2="25.5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="12" cy="12" r="5.2" fill="none" stroke="currentColor" stroke-width="1.1" stroke-dasharray="1.8 2.2"/>
+          <circle cx="12" cy="12" r="1.9" fill="currentColor"/>
+        </svg>
+        <span>Lupe: ein Atom</span>
+      </button>
+      <label class="sl">Dicke <input id="thick" type="range" min="0.2" max="3" step="0.1" value="1.2"><output id="thickOut">1,2 µm</output><span class="lock-badge" id="thickLock" hidden>Lizenz</span></label>
+      <label class="sl">Energie <input id="energy" type="range" min="3" max="8" step="0.1" value="7.7"><output id="energyOut">7,7 MeV</output><span class="lock-badge" id="energyLock" hidden>Lizenz</span></label>
+    </div>
+    <div class="row">
+      <div class="group">Zeitraffer
+        <div class="seg" role="group" aria-label="Zeitraffer">
+          <button type="button" data-rate="5" aria-pressed="false">5 pro s</button>
+          <button type="button" data-rate="200" aria-pressed="false">200 pro s</button>
+          <button type="button" data-rate="20000" aria-pressed="true">20&#8239;000 pro s</button>
+          <button type="button" data-rate="1000000" aria-pressed="false">1 Mio. pro s</button>
+        </div>
+      </div>
+      <button type="button" id="runBtn" class="solo" aria-pressed="false">Start</button>
+      <button type="button" id="burstBtn" class="solo">+ 1 Million sofort</button>
+      <button type="button" id="resetBtn" class="solo">Zurücksetzen</button>
+    </div>
+    <p class="hinweis" id="lizenzHinweis" role="status" hidden></p>
+  </div>
+
+  <div class="panel ui" id="lupePanel" hidden>
+    <div class="row">
+      <label class="sl">Stossparameter b <input id="lupeB" type="range" min="0" max="100" step="0.5" value="15"><output id="lupeBOut">15 fm</output></label>
+      <button type="button" id="lupeStream" class="solo" aria-pressed="true">Strahl: mehrere Teilchen</button>
+      <button type="button" id="lupeAuto" class="solo" aria-pressed="true">Bahn wechselt automatisch</button>
+      <button type="button" id="lupeGo" class="solo">Teilchen losschicken</button>
+      <button type="button" id="lupeBil" class="solo" aria-pressed="false">Billardkugel-Vorstellung (falsch)</button>
+      <button type="button" id="lupeTgt" class="solo" aria-pressed="false">Zielscheibe</button>
+      <button type="button" id="lupeClose" class="solo">Lupe schliessen</button>
+    </div>
+    <div id="lupeInfo" role="status" style="margin-top:10px;font-size:.95rem"></div>
+  </div>
+
+  <div class="panel ui">
+    <table aria-label="Ablenkwinkel der Teilchen">
+      <thead><tr><th>Ablenkung</th><th>Teilchen</th><th>Anteil</th></tr></thead>
+      <tbody id="tbl"></tbody>
+    </table>
+    <div class="result" id="result" role="status"></div>
+    <div class="compare" id="compare"></div>
+  </div>
+
+  <div class="notes">
+    <div class="note"><strong class="ui">Modell</strong>Das ist ein Modell. Die Elektronen sind nicht gezeichnet, sie lenken α-Teilchen kaum ab. Bahnen gibt es hier nicht. Der Kern ist etwa hunderttausendmal kleiner als das Atom, die Zeichnung ist nicht massstäblich.</div>
+    <div class="note"><strong class="ui">Kaum Stoff, aber nicht nichts</strong>Zwischen Kern und Hülle ist fast kein Stoff. Die Ablenkung geschieht durch die elektrische Abstossung zwischen dem positiven α-Teilchen und dem positiven Kern, also durch ein Feld. Das α-Teilchen berührt den Kern nie und prallt nicht wie eine Billardkugel ab.</div>
+    <div class="note"><strong class="ui">Flugbahn</strong>Die roten Linien zeigen die Flugbahn stark abgelenkter Teilchen, schematisch: gerade zur Folie, dort abgelenkt, gerade zum Schirm. In Wirklichkeit krümmt die Abstossung die Bahn nahe am Kern. Bei kleiner Rate fliegen einzelne Teilchen als Punkte durch das Bild.</div>
+    <div class="note"><strong class="ui">Lupe</strong>Die Lupe zeigt ein einzelnes Atom mit Massstab. Der Stossparameter b ist der Abstand der ursprünglichen Flugbahn von der Kernachse. Die Bahnen sind aus der Abstossungskraft gerechnet und stimmen mit der Rutherford-Formel überein. Das α-Teilchen kommt dem Kern bei Gold nie näher als etwa 30 fm, der Kern hat etwa 7 fm Radius: Es wird abgestossen, es prallt nicht ab. Der Strahl zeigt mehrere Teilchen mit zufälligem Stossparameter: Die meisten werden kaum abgelenkt, nur wenige stark. Die rot markierte Bahn blendet nach dem Durchflug aus, danach wird eine neue markiert (abschaltbar). Der Schalter «Billardkugel» zeigt zum Vergleich eine falsche Vorstellung. Im Thomson-Modell zeigt die Lupe das Atom mit gleichmässig verteilter positiver Ladung: Die Kraft ist überall klein, und die winzige Ablenkung ist für die Zeichnung vergrössert (der Faktor steht im Bild).</div>
+    <div class="note"><strong class="ui">Zeitraffer</strong>Die starken Ablenkungen sind sehr selten. Geiger und Marsden mussten die Blitze auf dem Schirm einzeln zählen. Hier läuft die Zeit gerafft.</div>
+    <div class="note"><strong class="ui">Zahlen</strong>Die Rechnung nutzt die Rutherford-Streuung an einem punktförmigen Kern. Unter 0,5 Grad ist die Streuung durch die Abschirmung der Elektronen als Gauss-Verteilung genähert. Im Thomson-Modell ist der Kern der Verteilung derselbe, es fehlen aber die seltenen grossen Winkel: Kleine Winkel unterscheiden die Modelle nicht, grosse schon. Die Werte sind noch nicht geprüft.</div>
+  </div>
+
+  <details>
+    <summary>Historische Messwerte (Rutherford 1911)</summary>
+    <p><strong>Platin, dicke Platte:</strong> Etwa 1 von 8000 α-Teilchen von Radium C wird in Einfallsrichtung zurückgestreut. Der Anteil ist aus der Beobachtung bei etwa 90 Grad unter der Annahme gleichmässiger Streuung in alle Richtungen berechnet (Geiger und Marsden, zitiert bei Rutherford).</p>
+    <p><strong>Gold, dünne Folie:</strong> Etwa 1 von 20&#8239;000 mit Ablenkung über 90 Grad. Bedingungen und Quelle noch zu nennen.</p>
+    <p>Die beiden Zahlen gehören zu verschiedenen Aufbauten und sind nicht direkt vergleichbar. Das Lab sagt nicht, Platin streue stärker als Gold.</p>
+    <div id="messreihe">
+    <p><strong>Dicke Schichten aus acht Metallen:</strong> z ist die relative Zahl der Blitze pro Minute auf einem Zinksulfid-Schirm.</p>
+    <table aria-label="Messreihe zu dicken Schichten">
+      <thead><tr><th>Metall</th><th>Atommasse</th><th>z</th><th>z / A<sup>3/2</sup></th></tr></thead>
+      <tbody>
+        <tr><td>Blei</td><td>207</td><td>62</td><td>208</td></tr>
+        <tr><td>Gold</td><td>197</td><td>67</td><td>242</td></tr>
+        <tr><td>Platin</td><td>195</td><td>63</td><td>232</td></tr>
+        <tr><td>Zinn</td><td>119</td><td>34</td><td>226</td></tr>
+        <tr><td>Silber</td><td>108</td><td>27</td><td>241</td></tr>
+        <tr><td>Kupfer</td><td>64</td><td>14,5</td><td>225</td></tr>
+        <tr><td>Eisen</td><td>56</td><td>10,2</td><td>250</td></tr>
+        <tr><td>Aluminium</td><td>27</td><td>3,4</td><td>243</td></tr>
+        <tr><td>Durchschnitt</td><td></td><td></td><td>233</td></tr>
+      </tbody>
+    </table>
+    <p>Aufgabe für Fortgeschrittene: Trage z gegen die Atommasse auf und finde heraus, dass z / A<sup>3/2</sup> etwa konstant ist.</p>
+    </div>
+    <p id="messreiheLock" hidden>Die Messreihe zu acht Metallen mit der Aufgabe gehört zur Lizenz.</p>
+  </details>
+
+  <p class="foot" id="betriebInfo"></p>
+  <p class="foot">Für Screenshots: Link mit <code>?modell=kern&amp;material=au&amp;dicke=1.2&amp;energie=7.7&amp;theme=dark&amp;start=1000000</code> (der Wert bei <code>start</code> ist die Zahl der sofort gerechneten Teilchen). Mit <code>&amp;modus=lizenz</code> zeigt die Seite den Lizenzbetrieb ohne aktive Lizenz (der Link kann nur verschärfen). Die Lupe öffnet mit <code>&amp;lupe=1</code>, dazu <code>&amp;strahl=0</code> (ohne Strahl), <code>&amp;auto=0</code> (Bahn bleibt stehen), <code>&amp;b=15</code> (Stossparameter in fm), <code>&amp;t=0.5</code> (Stand des Teilchens von 0 bis 1, ohne Animation), <code>&amp;billard=1</code> und <code>&amp;ziel=1</code>.</p>
+</main>
+
+<script>
+// ===================== Betriebsart =====================
+// modus "alles_frei": alle Funktionen offen (Testphase an der eigenen Schule).
+// modus "lizenz":     Betrieb mit Lizenz. Ohne aktive Lizenz sind gesperrt: weitere Folien (Platin, Silber, Kupfer),
+//                     Dicke, Energie und die Messreihe zu acht Metallen. Frei bleiben Gold und Aluminium bei fester Dicke und Energie.
+// Die umgebende Seite kann vor diesem Skript window.COGNIVIO_BETRIEB = { modus: "lizenz", lizenzAktiv: true | false } setzen
+// (lizenzAktiv kommt später aus der serverseitigen Prüfung der Lizenz). Der Link kann mit ?modus=lizenz nur verschärfen, nie lockern.
+// Achtung: Sperren im Browser sind nur eine Hürde. Der echte Schutz liegt serverseitig (Lizenzprüfung, Lehrpersonen-Seite, Codes, Daten).
+var BETRIEB = { modus: "alles_frei", lizenzUrl: "" };
+
+// <sim>
+var RS = (function () {
+  "use strict";
+  var MATS = {
+    au: { name: "Gold", Z: 79, A: 196.97, rho: 19.3 },
+    pt: { name: "Platin", Z: 78, A: 195.08, rho: 21.45 },
+    ag: { name: "Silber", Z: 47, A: 107.87, rho: 10.49 },
+    cu: { name: "Kupfer", Z: 29, A: 63.55, rho: 8.96 },
+    al: { name: "Aluminium", Z: 13, A: 26.98, rho: 2.70 }
+  };
+  var NA = 6.02214e23, KE2 = 1.44;            // KE2 = e²/(4π ε0) in MeV·fm
+  var THMIN = 0.5 * Math.PI / 180, COTMIN = 1 / Math.tan(THMIN / 2);
+  var EDGES = [0, 1, 5, 20, 45, 90, 180];
+  var LABELS = ["unter 1°", "1° bis 5°", "5° bis 20°", "20° bis 45°", "45° bis 90°", "über 90°"];
+
+  function rng(seed) {
+    return function () {
+      seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+      var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  var rnd = rng(1911);
+  function setSeed(s) { rnd = rng(s); }
+  function gauss() { var u = 1 - rnd(), v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function poisson(l) {
+    if (l > 30) { var k = Math.round(l + Math.sqrt(l) * gauss()); return k < 0 ? 0 : k; }
+    var L = Math.exp(-l), k2 = 0, p = 1;
+    do { k2++; p *= rnd(); } while (p > L);
+    return k2 - 1;
+  }
+  // Atome pro cm² für die Dicke t (µm)
+  function nt(m, t) { return m.rho * NA / m.A * t * 1e-4; }
+    // Anteil mit Ablenkung über 90 Grad bei Einzelstreuung: n·t·π·(1,44·Z/E)², Fläche in fm² → cm²
+  function p90(m, t, E) { var b = KE2 * m.Z / E; return nt(m, t) * Math.PI * b * b * 1e-26; }
+
+  function rotate(d, th, ph) {
+    var dx = d[0], dy = d[1], dz = d[2], ax, ay, az;
+    if (Math.abs(dz) < 0.9) { ax = 0; ay = 0; az = 1; } else { ax = 1; ay = 0; az = 0; }
+    var e1x = ay * dz - az * dy, e1y = az * dx - ax * dz, e1z = ax * dy - ay * dx;
+    var l = Math.sqrt(e1x * e1x + e1y * e1y + e1z * e1z); e1x /= l; e1y /= l; e1z /= l;
+    var e2x = dy * e1z - dz * e1y, e2y = dz * e1x - dx * e1z, e2z = dx * e1y - dy * e1x;
+    var ct = Math.cos(th), st = Math.sin(th), cp = Math.cos(ph), sp = Math.sin(ph);
+    d[0] = dx * ct + (e1x * cp + e2x * sp) * st;
+    d[1] = dy * ct + (e1y * cp + e2y * sp) * st;
+    d[2] = dz * ct + (e1z * cp + e2z * sp) * st;
+  }
+  var dir = [0, 0, 1];
+
+  // Kleinwinkelanteil: Begegnungen unterhalb von THMIN (Abschirmung durch die Elektronen) als Gauss-Streuung.
+  // Mittleres Winkelquadrat je Achse: 4 · p90 · ln(THMIN / θAbschirm); θAbschirm = ħ / (p · a_TF) (Thomas-Fermi-Radius).
+  function sigmaSmall(m, t, E) {
+    var pc = Math.sqrt(2 * 3727.4 * E), aTF = 0.885 * 52917.7 / Math.cbrt(m.Z), thScr = 197.327 / (pc * aTF);
+    return Math.sqrt(4 * p90(m, t, E) * Math.log(THMIN / thScr));
+  }
+  // Kernmodell: Begegnungen mit Ablenkung über THMIN, poissonverteilt, Winkel nach Rutherford, dazu der Kleinwinkelanteil.
+  function kern(m, t, E, out) {
+    var lam = p90(m, t, E) * COTMIN * COTMIN, k = poisson(lam), sg = sigmaSmall(m, t, E);
+    dir[0] = 0; dir[1] = 0; dir[2] = 1;
+    var gx = gauss() * sg, gy = gauss() * sg;
+    rotate(dir, Math.sqrt(gx * gx + gy * gy), Math.atan2(gy, gx));
+    for (var i = 0; i < k; i++) {
+      var c = COTMIN * Math.sqrt(rnd()), th = 2 * Math.atan(1 / c);
+      rotate(dir, th, 2 * Math.PI * rnd());
+    }
+    out.theta = Math.acos(dir[2] > 1 ? 1 : (dir[2] < -1 ? -1 : dir[2]));
+    out.alpha = Math.atan2(dir[0], dir[2]);
+  }
+  // Thomson-Modell: Gesamtstreuung gaussverteilt. Der Kern der Verteilung ist derselbe wie im Kernmodell
+  // (Rutherfords Argument: kleine Winkel unterscheiden die Modelle nicht), aber ohne seltene grosse Winkel.
+  function thomson(m, t, E, out) {
+    var sig = sigmaSmall(m, t, E);
+    var tx = gauss() * sig, ty = gauss() * sig, th = Math.sqrt(tx * tx + ty * ty), ph = Math.atan2(ty, tx);
+    out.theta = th;
+    out.alpha = Math.atan2(Math.sin(th) * Math.cos(ph), Math.cos(th));
+  }
+  function binOf(deg) {
+    for (var i = 1; i < EDGES.length; i++) if (deg < EDGES[i]) return i - 1;
+    return EDGES.length - 2;
+  }
+  // fine: 24 logarithmische Winkelbereiche von 0,1° bis 180°; ang: 90 Richtungen rund um die Folie
+  function newStats() { return { n: 0, counts: [0, 0, 0, 0, 0, 0], fine: new Array(24).fill(0), ang: new Array(90).fill(0) }; }
+  function fineIdx(deg) { return deg < 0.1 ? 0 : Math.min(23, Math.floor(Math.log(deg / 0.1) / Math.log(1800) * 24)); }
+  function angIdx(alpha) { return Math.min(89, Math.max(0, Math.floor((alpha + Math.PI) / (2 * Math.PI) * 90))); }
+  // Rechnet n Teilchen. sample: Zahl der Treffer, die für die Zeichnung zurückgegeben werden.
+  function run(model, matId, t, E, n, stats, sample) {
+    var m = MATS[matId], f = model === "kern" ? kern : thomson, o = { theta: 0, alpha: 0 }, hits = [], big = [];
+    var step = Math.max(1, Math.floor(n / Math.max(1, sample)));
+    for (var i = 0; i < n; i++) {
+      f(m, t, E, o);
+      var deg = o.theta * 180 / Math.PI;
+      stats.counts[binOf(deg)]++; stats.n++; stats.fine[fineIdx(deg)]++; stats.ang[angIdx(o.alpha)]++;
+      if (deg > 45) big.push(o.alpha); else if (i % step === 0) hits.push(o.alpha);
+    }
+    return { hits: hits, big: big };
+  }
+  function median(model, matId, t, E, n) {
+    var m = MATS[matId], f = model === "kern" ? kern : thomson, o = {}, a = [];
+    for (var i = 0; i < n; i++) { f(m, t, E, o); a.push(o.theta * 180 / Math.PI); }
+    a.sort(function (x, y) { return x - y; }); return a[Math.floor(n / 2)];
+  }
+  // Geometrie für die Lupe (Längen in fm). d: kleinster Abstand bei frontalem Stoss. RN: Kernradius (1,2·A^(1/3)).
+  // Rc: Berührungsabstand von Kern und α-Teilchen (Radius des α-Teilchens etwa 1,7 fm). V: halbe Breite des Lupenbilds.
+  function niceM(x) { var e = Math.pow(10, Math.floor(Math.log(x) / Math.LN10)), mant = x / e; return e * (mant < 1.5 ? 1 : mant < 3.5 ? 2 : mant < 7.5 ? 5 : 10); }
+  // Thomson-Atom: positive Ladung gleichmässig in einer Kugel mit dem Radius R (halber Atomabstand im Festkörper).
+  // Längen in pm. s = Z1·Z2·e²/(4π ε0 · R · E) ist zugleich die grösste Ablenkung in Bogenmass. M: Vergrösserung der Ablenkung für die Zeichnung.
+  function lupeGeomThomson(m, E, tUm) {
+    var n = m.rho * NA / m.A, Rpm = 0.5 * Math.pow(n, -1 / 3) * 1e10, s = 2 * KE2 * m.Z / (Rpm * 1000 * E);
+    return { model: "thomson", unit: "pm", d: Rpm, RN: 0, Rc: 0, V: 1.5 * Rpm, b90: 0, layers: tUm * 1e-4 * Math.cbrt(n), pLayer: 0, pTotal: 0, reaches: false, s: s, M: niceM(0.4 / s), thetaMax: s * 180 / Math.PI };
+  }
+  function lupeGeom(matId, E, tUm, model) {
+    if (model === "thomson") return lupeGeomThomson(MATS[matId], E, tUm);
+    var m = MATS[matId], d = 2 * KE2 * m.Z / E, RN = 1.2 * Math.cbrt(m.A), Rc = RN + 1.7;
+    var V = Math.max(40, Math.min(130, 4 * d));
+    var n = m.rho * NA / m.A, layers = tUm * 1e-4 * Math.cbrt(n), b90 = d / 2;
+    var areaAtom = Math.pow(n, -2 / 3) * 1e26;                       // fm² je Atom in einer Lage
+    var pLayer = Math.PI * b90 * b90 / areaAtom;
+    return { model: "kern", unit: "fm", d: d, RN: RN, Rc: Rc, V: V, b90: b90, layers: layers, pLayer: pLayer, pTotal: pLayer * layers, reaches: d < Rc };
+  }
+  // Bahn eines α-Teilchens im Feld eines ruhenden Kerns. Einheiten: Länge d, Energie E (im Unendlichen), Masse 1, Kraft 1/r².
+  // bt: Stossparameter in Einheiten von d. rc: Berührungsabstand in Einheiten von d. Start weit entfernt (60 d);
+  // Energie und Drehimpuls werden am Startpunkt so gesetzt, dass sie den Werten im Unendlichen entsprechen.
+  function trajectory(bt, rc) {
+    var X0 = 60, x = -X0, y = bt, r0 = Math.sqrt(x * x + y * y), vtot = Math.sqrt(2 * (1 - 1 / r0));
+    var vy = bt * (Math.SQRT2 - vtot) / X0, vx = Math.sqrt(Math.max(0, vtot * vtot - vy * vy)), t = 0;
+    var xs = [x], ys = [y], ts = [0], rmin = r0, touched = false, lastX = x, lastY = y, step = 0;
+    function acc(px, py) { var r2 = px * px + py * py, r = Math.sqrt(r2), a = 1 / r2; return [a * px / r, a * py / r]; }
+    var a0 = acc(x, y), ax = a0[0], ay = a0[1];
+    while (step < 400000) {
+      var r = Math.sqrt(x * x + y * y), sp = Math.sqrt(vx * vx + vy * vy), dt = 0.01 * Math.min(r / sp, 20);
+      vx += 0.5 * ax * dt; vy += 0.5 * ay * dt;
+      x += vx * dt; y += vy * dt; t += dt;
+      var an = acc(x, y); ax = an[0]; ay = an[1];
+      vx += 0.5 * ax * dt; vy += 0.5 * ay * dt;
+      r = Math.sqrt(x * x + y * y); if (r < rmin) rmin = r;
+      step++;
+      if (rc && r < rc) { touched = true; xs.push(x); ys.push(y); ts.push(t); break; }
+      if (Math.hypot(x - lastX, y - lastY) > Math.max(0.01, 0.04 * r)) { xs.push(x); ys.push(y); ts.push(t); lastX = x; lastY = y; }
+      if (x > X0 || r > 1.6 * X0) { xs.push(x); ys.push(y); ts.push(t); break; }
+    }
+    var theta = Math.acos(Math.max(-1, Math.min(1, vx / Math.sqrt(vx * vx + vy * vy))));
+    return { x: xs, y: ys, t: ts, theta: theta, rmin: rmin, touched: touched };
+  }
+  // Bahn durch ein Thomson-Atom. Einheiten: Länge R, Energie E, Masse 1 (v0 = √2). Kraft innen s·r, aussen s/r².
+  // Die Querabweichung wird für die Zeichnung um den Faktor M vergrössert (theta bleibt der echte Winkel).
+  function thomsonTrajectory(bt, s, M) {
+    var X0 = 8, x = -X0, y = bt, vx = Math.SQRT2, vy = 0, t = 0, dt = 0.02, step = 0, rmin = Math.sqrt(x * x + y * y);
+    var xs = [x], ys = [bt], ts = [0];
+    function acc(px, py) { var r = Math.sqrt(px * px + py * py); if (r < 1e-9) return [0, 0]; var a = r < 1 ? s * r : s / (r * r); return [a * px / r, a * py / r]; }
+    var a0 = acc(x, y), ax = a0[0], ay = a0[1];
+    while (step < 20000) {
+      vx += 0.5 * ax * dt; vy += 0.5 * ay * dt; x += vx * dt; y += vy * dt; t += dt;
+      var an = acc(x, y); ax = an[0]; ay = an[1]; vx += 0.5 * ax * dt; vy += 0.5 * ay * dt; step++;
+      var r = Math.sqrt(x * x + y * y); if (r < rmin) rmin = r;
+      if (step % 3 === 0) { xs.push(x); ys.push(bt + M * (y - bt)); ts.push(t); }
+      if (x > X0) break;
+    }
+    xs.push(x); ys.push(bt + M * (y - bt)); ts.push(t);
+    return { x: xs, y: ys, t: ts, theta: Math.abs(Math.atan2(vy, vx)), rmin: rmin, touched: false };
+  }
+  // Harter Kern (falsche Vorstellung): Gerade, an einer Kugel mit Radius rc gespiegelt.
+  function billard(bt, x0, rc) {
+    if (Math.abs(bt) >= rc) return { x: [-x0, x0], y: [bt, bt], theta: 0 };
+    var hx = -Math.sqrt(rc * rc - bt * bt), nx = hx / rc, ny = bt / rc, vx = 1, vy = 0, dot = vx * nx + vy * ny;
+    var rx = vx - 2 * dot * nx, ry = vy - 2 * dot * ny, len = x0 * 1.2;
+    return { x: [-x0, hx, hx + rx * len], y: [bt, bt, bt + ry * len], theta: Math.acos(Math.max(-1, Math.min(1, rx))) };
+  }
+  return { MATS: MATS, LABELS: LABELS, lupeGeom: lupeGeom, trajectory: trajectory, thomsonTrajectory: thomsonTrajectory, billard: billard, p90: p90, run: run, newStats: newStats, setSeed: setSeed, median: median, binOf: binOf, fineIdx: fineIdx, angIdx: angIdx };
+})();
+// </sim>
+
+(function () {
+  "use strict";
+  var cv = document.getElementById("cv"), ctx = cv.getContext("2d");
+  var W = cv.width, H = cv.height, CX = 330, CY = 250, R = 165, SX = 50;
+  var state = { model: "kern", mat: "au", rate: 20000, running: false, theme: "light" };
+  var S = { kern: RS.newStats(), thomson: RS.newStats() };
+  var dots = [], bigs = [], tracks = [], flights = [], carry = 0, DOT_CAP = 14000;
+  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function css(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || "#000"; }
+  function de(v, d) { return Number(v).toFixed(d).replace(".", ","); }
+  function fmtN(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f"); }
+  // Betriebsart und Lizenz
+  var CFG = window.COGNIVIO_BETRIEB || {};
+  var MODUS = (CFG.modus || BETRIEB.modus) === "lizenz" ? "lizenz" : "alles_frei";
+  if (new URLSearchParams(location.search).get("modus") === "lizenz") MODUS = "lizenz";
+  var LIZENZ_AKTIV = CFG.lizenzAktiv === true;
+  var FREI = { folien: ["au", "al"], dicke: 1.2, energie: 7.7 };
+  function begrenzt() { return MODUS === "lizenz" && !LIZENZ_AKTIV; }
+  function folieErlaubt(id) { return !begrenzt() || FREI.folien.indexOf(id) >= 0; }
+  var LOCK_SVG = '<svg class="lock-ico" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
+  function hinweis(t) {
+    var el = document.getElementById("lizenzHinweis"); el.hidden = false;
+    el.innerHTML = t + (BETRIEB.lizenzUrl ? ' <a href="' + BETRIEB.lizenzUrl + '">Lizenz ansehen</a>' : "");
+  }
+  function applyLizenz() {
+    document.getElementById("betriebInfo").textContent = begrenzt()
+      ? "Betriebsart: Lizenz, ohne aktive Lizenz (Vorschau). Frei: Gold und Aluminium bei fester Dicke und Energie."
+      : (MODUS === "lizenz" ? "Betriebsart: Lizenz, aktiv. Alle Funktionen offen." : "Betriebsart: alles frei (Testphase).");
+    if (!begrenzt()) return;
+    Array.prototype.forEach.call(document.querySelectorAll("[data-mat]"), function (b) {
+      if (!folieErlaubt(b.getAttribute("data-mat"))) { b.className += " locked"; b.setAttribute("aria-disabled", "true"); b.innerHTML = b.textContent + LOCK_SVG; }
+    });
+    ["thick", "energy"].forEach(function (id) {
+      var el = document.getElementById(id); el.value = id === "thick" ? FREI.dicke : FREI.energie; el.disabled = true; document.getElementById(id + "Lock").hidden = false;
+    });
+    document.getElementById("messreihe").hidden = true; document.getElementById("messreiheLock").hidden = false;
+    hinweis("Mit der Lizenz: weitere Folien (Platin, Silber, Kupfer), Dicke und Energie frei wählen, Messreihe zu acht Metallen, Lehrpersonen-Seite.");
+  }
+  function thick() { return begrenzt() ? FREI.dicke : parseFloat(document.getElementById("thick").value); }
+  function energy() { return begrenzt() ? FREI.energie : parseFloat(document.getElementById("energy").value); }
+  function pos(alpha, r) { r = r || R; return [CX + r * Math.cos(alpha), CY - r * Math.sin(alpha)]; }
+  function cur() { return S[state.model]; }
+
+  // Diagramm rechts: Anteil der Teilchen je Winkelbereich, beide Achsen logarithmisch, beide Modelle
+  var CH = { x0: 650, x1: 925, y0: 235, y1: 440 };
+  function chX(deg) { return CH.x0 + Math.log(deg / 0.1) / Math.log(1800) * (CH.x1 - CH.x0); }
+  function chY(frac) { return CH.y1 - (Math.log(frac) / Math.LN10 + 7) / 7 * (CH.y1 - CH.y0); }
+
+  function drawChart(text, soft, line) {
+    ctx.font = "12.5px Raleway, Arial, sans-serif"; ctx.textAlign = "left"; ctx.fillStyle = text;
+    ctx.fillText("Anteil der Teilchen je Winkelbereich", CH.x0 - 20, CH.y0 - 34);
+    ctx.fillStyle = soft; ctx.fillText("beide Achsen logarithmisch", CH.x0 - 20, CH.y0 - 18);
+    ctx.strokeStyle = line; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(CH.x0, CH.y0); ctx.lineTo(CH.x0, CH.y1); ctx.lineTo(CH.x1, CH.y1); ctx.stroke();
+    ctx.strokeStyle = soft; ctx.globalAlpha = 0.3; ctx.lineWidth = 1;
+    [1e-6, 1e-4, 1e-2, 1].forEach(function (f) { ctx.beginPath(); ctx.moveTo(CH.x0, chY(f)); ctx.lineTo(CH.x1, chY(f)); ctx.stroke(); });
+    ctx.globalAlpha = 1; ctx.textAlign = "right"; ctx.fillStyle = soft; ctx.font = "11.5px Raleway, Arial, sans-serif";
+    [[1e-6, "1 : 1 Mio."], [1e-4, "1 : 10 000"], [1e-2, "1 : 100"], [1, "alle"]].forEach(function (t) { ctx.fillText(t[1], CH.x0 - 5, chY(t[0]) + 4); });
+    ctx.textAlign = "center";
+    [[0.1, "0,1°"], [1, "1°"], [10, "10°"], [100, "100°"]].forEach(function (t) {
+      ctx.fillText(t[1], chX(t[0]), CH.y1 + 16);
+      ctx.beginPath(); ctx.strokeStyle = line; ctx.moveTo(chX(t[0]), CH.y1); ctx.lineTo(chX(t[0]), CH.y1 + 4); ctx.stroke();
+    });
+    ctx.fillText("Ablenkwinkel", (CH.x0 + CH.x1) / 2, CH.y1 + 32);
+    ctx.setLineDash([3, 4]); ctx.strokeStyle = soft; ctx.beginPath(); ctx.moveTo(chX(90), CH.y0); ctx.lineTo(chX(90), CH.y1); ctx.stroke(); ctx.setLineDash([]);
+    [["kern", text, [], "Kernmodell"], ["thomson", soft, [6, 4], "Thomson"]].forEach(function (m, k) {
+      var st = S[m[0]]; ctx.strokeStyle = m[1]; ctx.lineWidth = 2.2; ctx.setLineDash(m[2]);
+      if (st.n > 0) {
+        var pen = false; ctx.beginPath();
+        for (var i = 0; i < 24; i++) {
+          var c = st.fine[i];
+          if (c === 0 || c / st.n < 1e-7) { pen = false; continue; }
+          var d = 0.1 * Math.pow(1800, (i + 0.5) / 24), x = chX(d), y = chY(c / st.n);
+          if (pen) ctx.lineTo(x, y); else ctx.moveTo(x, y); pen = true;
+        }
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
+      ctx.beginPath(); ctx.setLineDash(m[2]); ctx.moveTo(CH.x0 + 4 + k * 105, CH.y0 - 4); ctx.lineTo(CH.x0 + 26 + k * 105, CH.y0 - 4); ctx.stroke(); ctx.setLineDash([]);
+      ctx.textAlign = "left"; ctx.fillStyle = m[1]; ctx.fillText(m[3] + (st.n > 0 ? "" : " (leer)"), CH.x0 + 30 + k * 105, CH.y0);
+    });
+  }
+
+  function draw() {
+    if (lupe.open) { drawLupe(); return; }
+    var text = css("--text"), soft = css("--text-soft"), line = css("--line"), bg = css("--void-1"), sig = css("--signal");
+    ctx.clearRect(0, 0, W, H); ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    // Balken aussen: Zahl der Teilchen je Richtung (logarithmisch). Zeigt auch dann etwas, wenn alle fast gerade durchgehen.
+    var st = cur(); ctx.strokeStyle = text; ctx.lineWidth = 6; ctx.globalAlpha = 0.8;
+    for (var a = 0; a < 90; a++) {
+      var c = st.ang[a]; if (!c) continue;
+      var len = Math.min(64, 9 * Math.log(1 + c) / Math.LN10), al = -Math.PI + (a + 0.5) * 2 * Math.PI / 90;
+      var p0 = pos(al, R + 4), p1 = pos(al, R + 4 + len); ctx.beginPath(); ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = line; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(CX, CY, R, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = soft; ctx.font = "12px Raleway, Arial, sans-serif"; ctx.textAlign = "left";
+    ctx.fillText("Schirm: jeder Punkt ein Blitz.", 14, 18); ctx.fillText("Balken aussen: Zahl der Teilchen je Richtung (logarithmisch).", 14, 34);
+    ctx.textAlign = "center";
+    [[0, "0°"], [90, "90°"], [180, "180°"], [270, "90°"]].forEach(function (t) {
+      var rad = t[0] * Math.PI / 180, x = CX + (R - 22) * Math.cos(rad), y = CY - (R - 22) * Math.sin(rad) + (t[0] === 180 ? 20 : 4); ctx.fillText(t[1], x, y);
+    });
+    ctx.setLineDash([6, 6]); ctx.strokeStyle = soft; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(SX + 20, CY); ctx.lineTo(CX, CY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = text; ctx.fillRect(SX - 20, CY - 14, 40, 28);
+    ctx.fillStyle = soft; ctx.fillText("Quelle", SX, CY + 34);
+    var fw = 4 + thick() * 2;
+    ctx.fillStyle = line; ctx.fillRect(CX - fw / 2, CY - 70, fw, 140);
+    ctx.fillStyle = soft; ctx.fillText("Folie", CX, CY - 80); ctx.fillText("Klick auf die Folie: Lupe", CX, CY + 92);
+    // Flugbahnen stark abgelenkter Teilchen (schematisch: gerade zur Folie, dort abgelenkt, gerade zum Schirm)
+    ctx.lineWidth = 1.4; ctx.strokeStyle = sig; ctx.globalAlpha = 0.6;
+    tracks.forEach(function (al) { var p = pos(al); ctx.beginPath(); ctx.moveTo(SX + 20, CY); ctx.lineTo(CX, CY); ctx.lineTo(p[0], p[1]); ctx.stroke(); });
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = text; ctx.globalAlpha = 0.3;
+    for (var i = 0; i < dots.length; i++) { var p2 = pos(dots[i]); ctx.fillRect(p2[0] - 1.5, p2[1] - 1.5, 3, 3); }
+    ctx.globalAlpha = 1; ctx.lineWidth = 2;
+    for (var j = 0; j < bigs.length; j++) {
+      var q = pos(bigs[j]); ctx.fillStyle = text; ctx.beginPath(); ctx.arc(q[0], q[1], 3.5, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = sig; ctx.beginPath(); ctx.arc(q[0], q[1], 7, 0, Math.PI * 2); ctx.stroke();
+    }
+    var now = performance.now();
+    ctx.fillStyle = text;
+    flights.forEach(function (f) {
+      var ph = (now - f.t0) / 1200, x, y;
+      if (ph < 0 || ph >= 1) return;
+      if (ph < 0.5) { x = SX + 20 + (CX - SX - 20) * ph * 2; y = CY; }
+      else { var p = pos(f.a); x = CX + (p[0] - CX) * (ph - 0.5) * 2; y = CY + (p[1] - CY) * (ph - 0.5) * 2; }
+      ctx.beginPath(); ctx.arc(x, y, 3.2, 0, Math.PI * 2); ctx.fill();
+    });
+    var ax = 668, ay = 100;
+    ctx.strokeStyle = line; ctx.lineWidth = 2; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.arc(ax, ay, 38, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+    if (state.model === "kern") { ctx.fillStyle = text; ctx.beginPath(); ctx.arc(ax, ay, 2.5, 0, Math.PI * 2); ctx.fill(); }
+    else { ctx.fillStyle = soft; ctx.globalAlpha = 0.25; ctx.beginPath(); ctx.arc(ax, ay, 37, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; }
+    ctx.textAlign = "left"; ctx.fillStyle = text; ctx.font = "13.5px Raleway, Arial, sans-serif";
+    ctx.fillText(state.model === "kern" ? "Kernmodell" : "Thomson-Modell", 722, 82);
+    ctx.fillStyle = soft; ctx.font = "12px Raleway, Arial, sans-serif";
+    ctx.fillText(state.model === "kern" ? "positive Ladung im winzigen Kern" : "positive Ladung gleichmässig verteilt", 722, 100);
+    ctx.fillText("Elektronen nicht gezeichnet,", 722, 118); ctx.fillText("nicht massstäblich", 722, 134);
+    drawChart(text, soft, line);
+  }
+
+  // ----- Lupe: ein einzelnes Atom -----
+  var lupe = { open: false, b: 15, geom: null, fan: [], sel: null, bil: null, showBil: false, showTgt: false, t0: null, fixed: null, iw: [0, 1], stream: !reduce, fl: [], acc: 0, cache: {}, auto: !reduce, sgn: 1 };
+  var LX = 470, LY = 245, LR = 185;
+  // Bahn zu einem Stossparameter (in 0,5-fm-Stufen zwischengespeichert), mit Zeitfenster im Bild
+  function lupePathFor(bAbs) {
+    var g = lupe.geom, key = Math.round(bAbs * 2) / 2, c = lupe.cache[key];
+    if (!c) {
+      var tr = lupeTraj(key / g.d), rv = g.V / g.d, a = -1, z = -1;
+      for (var i = 0; i < tr.x.length; i++) if (Math.hypot(tr.x[i], tr.y[i]) <= rv * 1.02) { if (a < 0) a = i; z = i; }
+      c = lupe.cache[key] = { tr: tr, a: Math.max(0, a), z: z < 0 ? tr.x.length - 1 : z };
+    }
+    return c;
+  }
+  function lupePosAt(c, tt) {
+    var tr = c.tr; if (tt > tr.t[c.z]) return null;
+    var idx = c.a; while (idx < c.z - 1 && tr.t[idx + 1] <= tt) idx++;
+    var j = Math.min(idx + 1, tr.x.length - 1), f = tr.t[j] > tr.t[idx] ? Math.max(0, Math.min(1, (tt - tr.t[idx]) / (tr.t[j] - tr.t[idx]))) : 0;
+    return [tr.x[idx] + f * (tr.x[j] - tr.x[idx]), tr.y[idx] + f * (tr.y[j] - tr.y[idx])];
+  }
+  // Sekunden je Zeiteinheit der Rechnung: weit vom Kern etwa 90 Bildpunkte pro Sekunde
+  function lupeSpu() { var g = lupe.geom, k = LR / g.V; return Math.SQRT2 * k * g.d / 90; }
+  // Dauer des Flugs der markierten Bahn im Bild (Sekunden)
+  function lupeDur() { var tr = lupe.sel; return Math.max(0.001, tr.t[lupe.iw[1]] - tr.t[lupe.iw[0]]) * lupeSpu(); }
+  // Nach dem Durchflug bleibt die Bahn 1,2 s stehen und blendet dann in 1 s aus. Danach wählt lupeNext eine neue.
+  function lupeFade(now) {
+    if (!lupe.auto || lupe.fixed !== null) return 1;
+    var after = (now - lupe.t0) / 1000 - lupeDur();
+    return after <= 1.2 ? 1 : Math.max(0, 1 - (after - 1.2));
+  }
+  function lupeNext() {
+    var g = lupe.geom, lo = Math.log(Math.max(0.5, 0.1 * g.d)), hi = Math.log(g.V * 0.9);
+    lupe.b = Math.round(Math.exp(lo + Math.random() * (hi - lo)) * 2) / 2; lupe.sgn = Math.random() < 0.5 ? -1 : 1;
+    lupeRecalc(false, true); lupe.t0 = performance.now();
+  }
+  function lupeSeed() {
+    lupe.fl = []; lupe.acc = 0; var now = performance.now(), g = lupe.geom;
+    for (var i = 0; i < 10; i++) { var u = (i * 0.618034) % 1, bb = (u * 2 - 1) * g.V * 0.9; lupe.fl.push({ b: Math.abs(bb), s: bb < 0 ? -1 : 1, t0: now - i * 450 }); }
+  }
+  // Bahn für einen Stossparameter in Einheiten der Atomlänge (Kernmodell: d, Thomson-Modell: Atomradius)
+  function lupeTraj(bu) { var g = lupe.geom; return g.model === "thomson" ? RS.thomsonTrajectory(bu, g.s, g.M) : RS.trajectory(bu, g.Rc / g.d); }
+  function fd(v) { return String(Number(v.toPrecision(2))).replace(".", ","); }
+  function lupeRecalc(resetB, keepStream) {
+    var g = RS.lupeGeom(state.mat, energy(), thick(), state.model); lupe.geom = g; var tm = g.model === "thomson";
+    document.getElementById("lupeBil").hidden = tm; document.getElementById("lupeTgt").hidden = tm;
+    if (!keepStream) { lupe.cache = {}; if (lupe.stream) lupeSeed(); else lupe.fl = []; }
+    var sl = document.getElementById("lupeB"); sl.max = String(Math.floor(g.V * 0.9)); sl.step = tm ? "1" : "0.5";
+    if (resetB) lupe.b = tm ? Math.round(0.9 * g.d) : Math.round(g.b90 * 2) / 2;
+    if (lupe.b > Math.floor(g.V * 0.9)) lupe.b = Math.floor(g.V * 0.9);
+    sl.value = String(lupe.b);
+    lupe.fan = [0.06, 0.14, 0.26, 0.42, 0.62, 0.85].map(function (f) { return lupeTraj(f * g.V / g.d); });
+    lupe.sel = lupeTraj(lupe.b / g.d);
+    lupe.bil = tm ? null : RS.billard(lupe.b / g.d, g.V / g.d * 1.3, g.Rc / g.d);
+    var tr = lupe.sel, rv = g.V / g.d, a = -1, z = -1;
+    for (var i = 0; i < tr.x.length; i++) if (Math.hypot(tr.x[i], tr.y[i]) <= rv) { if (a < 0) a = i; z = i; }
+    lupe.iw = a < 0 ? [0, tr.x.length - 1] : [a, z];
+    lupeInfo();
+  }
+  function lupeInfo() {
+    var g = lupe.geom, tr = lupe.sel, th = tr.theta * 180 / Math.PI, rmin = tr.rmin * g.d, el = document.getElementById("lupeInfo");
+    document.getElementById("lupeBOut").textContent = de(lupe.b, 1) + " " + g.unit;
+    if (g.model === "thomson") {
+      el.innerHTML = "<p style=\"margin:0 0 6px\">Stossparameter b = <strong>" + de(lupe.b, 0) + " pm</strong> (Atomradius etwa " + de(g.d, 0) + " pm). Ablenkwinkel (Rechnung): <strong>" + fd(th) + "°</strong>. Grösste Ablenkung an diesem Atom: etwa <strong>" + fd(g.thetaMax) + "°</strong>. In der Zeichnung ist die Ablenkung <strong>" + fmtN(g.M) + "-fach vergrössert</strong>.</p>" +
+        "<p style=\"margin:0\">Die positive Ladung ist über das ganze Atom verteilt, deshalb ist die Kraft überall klein: Innen wächst sie mit dem Abstand von der Mitte, ausserhalb nimmt sie ab. Ein einzelnes Atom lenkt das Teilchen nur minimal ab. Erst viele Atome hintereinander ergeben wenige Grad. Eine Ablenkung über 90° ist in diesem Modell nicht möglich.</p>";
+      return;
+    }
+    var h = "<p style=\"margin:0 0 6px\">Stossparameter b = <strong>" + de(lupe.b, 1) + " fm</strong>. " +
+      (tr.touched ? "Das Teilchen erreicht hier den Berührungsabstand, danach gilt die Rechnung nicht mehr. " : "Ablenkwinkel (Rechnung): <strong>" + de(th, 1) + "°</strong>. Kleinster Abstand zum Kern: <strong>" + de(rmin, 1) + " fm</strong>. ") +
+      "Kernradius etwa " + de(g.RN, 1) + " fm, Berührungsabstand etwa " + de(g.Rc, 1) + " fm.</p>";
+    if (g.reaches) h += "<p style=\"margin:0 0 6px\">Bei diesem Material und dieser Energie kann ein frontal fliegendes Teilchen den Kern erreichen. Dann wirken Kernkräfte, und die Rutherford-Rechnung gilt nicht mehr.</p>";
+    else h += "<p style=\"margin:0 0 6px\">Das Teilchen kommt dem Kern bei frontalem Stoss nie näher als " + de(g.d, 1) + " fm und berührt ihn nicht: Es wird abgestossen, es prallt nicht ab.</p>";
+    if (lupe.showBil) h += "<p style=\"margin:0 0 6px\">Harte Kugel (falsche Vorstellung): " + (lupe.b >= g.Rc ? "Bei diesem b flöge das Teilchen geradeaus, nichts würde abgelenkt." : "Das Teilchen würde um " + de(lupe.bil.theta * 180 / Math.PI, 0) + "° abprallen.") + " Nur Teilchen mit b unter " + de(g.Rc, 1) + " fm würden überhaupt abgelenkt. Das passt weder zu den vielen kleinen Winkeln noch zur gemessenen Verteilung.</p>";
+    if (lupe.showTgt) h += "<p style=\"margin:0\">Zielscheibe: Teilchen mit b unter " + de(g.b90, 1) + " fm werden um mehr als 90° abgelenkt. Pro Atomlage trifft das etwa 1 von " + fmtN(Math.round(1 / g.pLayer)) + " Teilchen. In " + de(thick(), 1) + " µm Folie liegen etwa " + fmtN(Math.round(g.layers)) + " Atomlagen: zusammen etwa 1 von " + fmtN(Math.round(1 / g.pTotal)) + ".</p>";
+    el.innerHTML = h;
+  }
+  function lupeOpen(on, resetB) {
+    lupe.open = on; document.getElementById("lupePanel").hidden = !on;
+    document.getElementById("lupeBtn").setAttribute("aria-pressed", String(on));
+    if (on) { lupeRecalc(resetB !== false); lupe.t0 = performance.now(); }
+    draw();
+  }
+  function lpx(xd, yd) { var k = LR / lupe.geom.V * lupe.geom.d; return [LX + xd * k, LY - yd * k]; }
+  function drawPath(tr, sign, upTo) {
+    var n = upTo === undefined ? tr.x.length : upTo; if (n < 2) return;
+    ctx.beginPath();
+    for (var i = 0; i < n; i++) { var p = lpx(tr.x[i], sign * tr.y[i]); if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]); }
+    ctx.stroke();
+  }
+  function drawLupe() {
+    var text = css("--text"), soft = css("--text-soft"), line = css("--line"), bg = css("--void-1"), sig = css("--signal"), surf = css("--surface");
+    var g = lupe.geom, k = LR / g.V, tm = g.model === "thomson";
+    ctx.clearRect(0, 0, W, H); ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    ctx.textAlign = "left"; ctx.fillStyle = text; ctx.font = "14px Raleway, Arial, sans-serif";
+    ctx.fillText(tm ? "Lupe: ein einzelnes Atom im Thomson-Modell (positive Ladung gleichmässig verteilt)" : "Lupe: ein einzelnes Atom (Modell, Ausschnitt um den Kern)", 16, 24);
+    ctx.fillStyle = soft; ctx.font = "12px Raleway, Arial, sans-serif";
+    ctx.fillText(tm ? "Elektronen sind nicht gezeichnet. Die Ablenkung ist " + fmtN(g.M) + "-fach vergrössert gezeichnet. Massstab unten." : "Atomhülle und Elektronen sind nicht gezeichnet. Massstab unten.", 16, 42);
+    // Mini-Folie und Verbindung zur Lupe
+    ctx.fillStyle = line; ctx.fillRect(66, LY - 70, 8, 140);
+    ctx.strokeStyle = line; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(70, LY, 15, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = soft; ctx.textAlign = "center"; ctx.fillText("Folie", 70, LY - 80);
+    var a1 = (140 * Math.PI) / 180;
+    ctx.lineWidth = 1.2; ctx.setLineDash([4, 4]); ctx.strokeStyle = soft;
+    ctx.beginPath(); ctx.moveTo(78, LY - 13); ctx.lineTo(LX + LR * Math.cos(a1), LY - LR * Math.sin(a1)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(78, LY + 13); ctx.lineTo(LX + LR * Math.cos(a1), LY + LR * Math.sin(a1)); ctx.stroke(); ctx.setLineDash([]);
+    // Linse
+    ctx.save(); ctx.beginPath(); ctx.arc(LX, LY, LR, 0, Math.PI * 2); ctx.fillStyle = surf; ctx.fill(); ctx.clip();
+    if (lupe.showTgt && !tm) {
+      ctx.fillStyle = text; ctx.globalAlpha = 0.12; ctx.fillRect(LX - LR, LY - g.b90 * k, 2 * LR, 2 * g.b90 * k); ctx.globalAlpha = 1;
+      ctx.strokeStyle = text; ctx.lineWidth = 1; ctx.setLineDash([2, 4]);
+      ctx.beginPath(); ctx.moveTo(LX - LR, LY - g.b90 * k); ctx.lineTo(LX + LR, LY - g.b90 * k); ctx.moveTo(LX - LR, LY + g.b90 * k); ctx.lineTo(LX + LR, LY + g.b90 * k); ctx.stroke(); ctx.setLineDash([]);
+    }
+    if (tm) {
+      ctx.fillStyle = soft; ctx.globalAlpha = 0.22; ctx.beginPath(); ctx.arc(LX, LY, g.d * k, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+      ctx.strokeStyle = soft; ctx.lineWidth = 1.5; ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.arc(LX, LY, g.d * k, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+    } else {
+      ctx.strokeStyle = soft; ctx.lineWidth = 1.2; ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.arc(LX, LY, g.d * k, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+      ctx.setLineDash([1.5, 3]); ctx.beginPath(); ctx.arc(LX, LY, g.Rc * k, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+    }
+    // Bahnen anderer Teilchen
+    ctx.strokeStyle = soft; ctx.lineWidth = 1.4; ctx.globalAlpha = 0.8;
+    lupe.fan.forEach(function (tr) { drawPath(tr, 1); drawPath(tr, -1); });
+    ctx.globalAlpha = 1;
+    var faNow = lupeFade(performance.now());
+    if (lupe.showBil && !tm && lupe.bil) {
+      ctx.fillStyle = soft; ctx.globalAlpha = 0.35; ctx.beginPath(); ctx.arc(LX, LY, g.Rc * k, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = faNow;
+      ctx.strokeStyle = text; ctx.lineWidth = 2; ctx.setLineDash([7, 5]); ctx.beginPath();
+      var bl = lupe.bil; for (var i = 0; i < bl.x.length; i++) { var pb = lpx(bl.x[i], lupe.sgn * bl.y[i]); if (i === 0) ctx.moveTo(pb[0], pb[1]); else ctx.lineTo(pb[0], pb[1]); }
+      ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+    }
+    // gewählte Bahn
+    var tr = lupe.sel, now = performance.now(), prog, sg = lupe.sgn, fa = faNow;
+    if (lupe.fixed !== null) prog = lupe.fixed; else prog = Math.min(1, (now - lupe.t0) / 1000 / lupeDur());
+    var showP = lupe.fixed !== null || prog < 1;
+    var tw0 = tr.t[lupe.iw[0]], tw1 = tr.t[lupe.iw[1]], tt = tw0 + prog * (tw1 - tw0), idx = lupe.iw[0];
+    while (idx < lupe.iw[1] - 1 && tr.t[idx + 1] <= tt) idx++;
+    var f = tr.t[idx + 1] > tr.t[idx] ? Math.max(0, Math.min(1, (tt - tr.t[idx]) / (tr.t[idx + 1] - tr.t[idx]))) : 0;
+    var px = tr.x[idx] + f * (tr.x[Math.min(idx + 1, tr.x.length - 1)] - tr.x[idx]), py = sg * (tr.y[idx] + f * (tr.y[Math.min(idx + 1, tr.y.length - 1)] - tr.y[idx]));
+    ctx.strokeStyle = sig; ctx.lineWidth = 1.6; ctx.globalAlpha = 0.35 * fa; drawPath(tr, sg); ctx.globalAlpha = fa;
+    ctx.lineWidth = 3; ctx.beginPath();
+    for (var j = 0; j <= idx; j++) { var pj = lpx(tr.x[j], sg * tr.y[j]); if (j === 0) ctx.moveTo(pj[0], pj[1]); else ctx.lineTo(pj[0], pj[1]); }
+    var pc = lpx(px, py); ctx.lineTo(pc[0], pc[1]); ctx.stroke(); ctx.globalAlpha = 1;
+    // Strahl: mehrere Teilchen mit zufälligem Stossparameter, die meisten werden kaum abgelenkt
+    if (lupe.stream) {
+      var spu = lupeSpu(), live = [];
+      lupe.fl.forEach(function (fl) {
+        var c = lupePathFor(fl.b), tt = c.tr.t[c.a] + (now - fl.t0) / 1000 / spu, P = lupePosAt(c, tt);
+        if (!P) return; live.push(fl);
+        ctx.fillStyle = text;
+        for (var s2 = 0; s2 < 4; s2++) {
+          var Q = lupePosAt(c, tt - s2 * 0.12); if (!Q) break;
+          var qp = lpx(Q[0], fl.s * Q[1]); ctx.globalAlpha = 0.6 - s2 * 0.14; ctx.beginPath(); ctx.arc(qp[0], qp[1], 3.6 - s2 * 0.6, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        if (lupe.showTgt && fl.b < g.b90) { var pp = lpx(P[0], fl.s * P[1]); ctx.strokeStyle = sig; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(pp[0], pp[1], 7, 0, Math.PI * 2); ctx.stroke(); }
+      });
+      lupe.fl = live;
+    }
+    // Kern (nur im Kernmodell)
+    if (!tm) { ctx.fillStyle = text; ctx.beginPath(); ctx.arc(LX, LY, Math.max(3, g.RN * k), 0, Math.PI * 2); ctx.fill(); }
+    // Teilchen und Kraftpfeil (nur während des Flugs)
+    if (showP) {
+      var r = Math.max(1e-6, Math.hypot(px, py)), ux = px / r, uy = py / r, rr = Math.max(1e-6, Math.hypot(px, lupe.b / g.d));
+      var len = tm ? 8 + 62 * (rr < 1 ? rr : 1 / (rr * rr)) : Math.min(70, 10 + 40 * Math.pow(1 / r, 2));
+      ctx.fillStyle = text; ctx.beginPath(); ctx.arc(pc[0], pc[1], 5, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = sig; ctx.fillStyle = sig; ctx.lineWidth = 2.5;
+      var ex = pc[0] + ux * len, ey = pc[1] - uy * len; ctx.beginPath(); ctx.moveTo(pc[0] + ux * 6, pc[1] - uy * 6); ctx.lineTo(ex, ey); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(ex - ux * 9 + uy * 5, ey + uy * 9 + ux * 5); ctx.lineTo(ex - ux * 9 - uy * 5, ey + uy * 9 - ux * 5); ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+    ctx.strokeStyle = line; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(LX, LY, LR, 0, Math.PI * 2); ctx.stroke();
+    // Massstab
+    var nice = tm ? [10, 20, 50, 100, 200] : [5, 10, 20, 50, 100], L = nice[nice.length - 1];
+    for (var m = 0; m < nice.length; m++) if (nice[m] * k >= 60) { L = nice[m]; break; }
+    var sx0 = LX - LR, sy = LY + LR + 22;
+    ctx.strokeStyle = line; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sx0, sy); ctx.lineTo(sx0 + L * k, sy); ctx.moveTo(sx0, sy - 4); ctx.lineTo(sx0, sy + 4); ctx.moveTo(sx0 + L * k, sy - 4); ctx.lineTo(sx0 + L * k, sy + 4); ctx.stroke();
+    ctx.fillStyle = text; ctx.textAlign = "left"; ctx.font = "12.5px Raleway, Arial, sans-serif"; ctx.fillText(tm ? L + " pm  (1 pm = 10\u207b\u00b9\u00b2 m)" : L + " fm  (1 fm = 10\u207b\u00b9\u2075 m)", sx0 + L * k + 10, sy + 4);
+    // Legende rechts
+    var lx = 690, ly = 90; ctx.font = "12.5px Raleway, Arial, sans-serif"; ctx.textAlign = "left";
+    function leg(label, draw2) { draw2(); ctx.fillStyle = text; ctx.fillText(label, lx + 36, ly + 4); ly += 28; }
+    leg("Bahnen (Rechnung), Punkte: Strahl", function () { ctx.strokeStyle = soft; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 28, ly); ctx.stroke(); });
+    leg("gewählte Bahn, Pfeil = Abstossung", function () { ctx.strokeStyle = sig; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 28, ly); ctx.stroke(); });
+    if (tm) leg("Atom: positive Ladung verteilt", function () { ctx.fillStyle = soft; ctx.globalAlpha = 0.3; ctx.fillRect(lx, ly - 7, 28, 14); ctx.globalAlpha = 1; });
+    if (!tm) leg("kleinster Abstand (frontal)", function () { ctx.strokeStyle = soft; ctx.lineWidth = 1.2; ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 28, ly); ctx.stroke(); ctx.setLineDash([]); });
+    if (!tm) leg("Berührungsabstand", function () { ctx.strokeStyle = soft; ctx.lineWidth = 1.2; ctx.setLineDash([1.5, 3]); ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 28, ly); ctx.stroke(); ctx.setLineDash([]); });
+    if (lupe.showBil) leg("harte Kugel (falsch)", function () { ctx.strokeStyle = text; ctx.lineWidth = 2; ctx.setLineDash([7, 5]); ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 28, ly); ctx.stroke(); ctx.setLineDash([]); });
+    if (lupe.showTgt) leg("Zielscheibe (über 90°)", function () { ctx.fillStyle = text; ctx.globalAlpha = 0.12; ctx.fillRect(lx, ly - 7, 28, 14); ctx.globalAlpha = 1; });
+    ctx.fillStyle = soft;
+    var txt = tm ? ["Die Kraft ist überall klein:", "Ein Atom lenkt höchstens um", "etwa " + fd(g.thetaMax) + "° ab. Die Ablenkung", "ist ×" + fmtN(g.M) + " vergrössert gezeichnet."] : g.reaches ? ["Bei diesem leichten Kern und dieser", "Energie kann das Teilchen den Kern", "erreichen. Dann wirken Kernkräfte,", "die Rechnung gilt nicht mehr."] : ["Der Kern ist ein Punkt aus Stoff,", "die Abstossung ein Feld. Das Teilchen", "wird umgelenkt, ohne den Kern", "zu berühren."];
+    txt.forEach(function (t, i) { ctx.fillText(t, lx, ly + 24 + i * 18); });
+  }
+
+  function table() {
+    var st = cur(), body = document.getElementById("tbl"), html = "";
+    for (var i = 0; i < 6; i++) {
+      var c = st.counts[i], sh = st.n ? c / st.n * 100 : 0;
+      html += "<tr" + (i === 5 ? ' class="big"' : "") + "><td>" + RS.LABELS[i] + "</td><td>" + fmtN(c) + "</td><td>" +
+        (st.n ? (sh < 0.01 && c > 0 ? "< 0,01" : de(sh, sh >= 1 ? 1 : 3)) + " %" : "–") + "</td></tr>";
+    }
+    body.innerHTML = html;
+    var k = st.counts[5], n = st.n, res = document.getElementById("result"), cmp = document.getElementById("compare");
+    res.textContent = n === 0 ? "Noch kein Teilchen gerechnet." :
+      "Von " + fmtN(n) + " Teilchen wurden " + fmtN(k) + " um mehr als 90 Grad abgelenkt" + (k > 0 ? " (etwa 1 von " + fmtN(Math.round(n / k)) + ")." : ".");
+    var p = RS.p90(RS.MATS[state.mat], thick(), energy());
+    cmp.textContent = state.model === "kern"
+      ? "Rechnung im Kernmodell für diese Folie: etwa 1 von " + fmtN(Math.round(1 / p)) + ". Historisch: Gold, dünne Folie, etwa 1 von 20 000. Platin, dicke Platte, etwa 1 von 8000 (anderer Aufbau)."
+      : "Das Thomson-Modell erwartet praktisch keine Ablenkung über 90 Grad. Historisch gemessen: etwa 1 von 20 000 bei Gold. Lass beide Modelle laufen: Das Diagramm rechts zeigt beide.";
+  }
+
+  // Bei kleiner Rate fliegt jedes Teilchen einzeln. Der Startzeitpunkt wird gleichmässig über das Bild verteilt,
+  // der Treffer erscheint erst bei der Ankunft. So entsteht ein gleichmässiger Strom, keine Wellen.
+  function land(a, big) {
+    if (big) { if (bigs.length < 400) bigs.push(a); tracks.push(a); while (tracks.length > 10) tracks.shift(); }
+    else { dots.push(a); if (dots.length > DOT_CAP) dots.splice(0, dots.length - DOT_CAP); }
+  }
+  function landFlights() {
+    var now = performance.now(), keep = [];
+    flights.forEach(function (f) { if (now - f.t0 >= 1200) land(f.a, f.big); else keep.push(f); });
+    flights = keep;
+  }
+  function add(res, fly, frameMs) {
+    if (fly && !reduce) {
+      var now = performance.now(), span = frameMs || 16;
+      res.hits.forEach(function (a) { if (flights.length < 700) flights.push({ a: a, big: false, t0: now + Math.random() * span }); });
+      res.big.forEach(function (a) { if (flights.length < 700) flights.push({ a: a, big: true, t0: now + Math.random() * span }); });
+      return;
+    }
+    res.hits.forEach(function (a) { land(a, false); });
+    res.big.forEach(function (a) { land(a, true); });
+  }
+  function reset() { S = { kern: RS.newStats(), thomson: RS.newStats() }; dots = []; bigs = []; tracks = []; flights = []; carry = 0; table(); if (lupe.open) lupeRecalc(false); draw(); }
+  function burst(n) {
+    var left = n, chunk = 100000, model = state.model;
+    function go() {
+      var m = Math.min(chunk, left);
+      add(RS.run(model, state.mat, thick(), energy(), m, S[model], 400), false);
+      left -= m; table(); draw();
+      if (left > 0) setTimeout(go, 0);
+    }
+    go();
+  }
+
+  function group(sel, attr, val) {
+    Array.prototype.forEach.call(document.querySelectorAll(sel), function (b) { b.setAttribute("aria-pressed", String(b.getAttribute(attr) === val)); });
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    if (b.hasAttribute("data-model")) {
+      state.model = b.getAttribute("data-model"); group("[data-model]", "data-model", state.model);
+      dots = []; bigs = []; tracks = []; flights = []; table(); if (lupe.open) { lupeRecalc(true); lupe.t0 = performance.now(); } draw();
+    }
+    else if (b.hasAttribute("data-mat")) {
+      if (!folieErlaubt(b.getAttribute("data-mat"))) { hinweis("Diese Folie gehört zur Lizenz. Frei sind Gold und Aluminium."); return; }
+      state.mat = b.getAttribute("data-mat"); group("[data-mat]", "data-mat", state.mat); reset(); }
+    else if (b.hasAttribute("data-rate")) { state.rate = parseInt(b.getAttribute("data-rate"), 10); group("[data-rate]", "data-rate", String(state.rate)); }
+    else if (b.hasAttribute("data-theme-btn")) {
+      state.theme = b.getAttribute("data-theme-btn"); document.documentElement.setAttribute("data-theme", state.theme);
+      group("[data-theme-btn]", "data-theme-btn", state.theme); draw();
+    }
+    else if (b.id === "runBtn") { state.running = !state.running; b.setAttribute("aria-pressed", String(state.running)); b.textContent = state.running ? "Pause" : "Start"; }
+    else if (b.id === "burstBtn") { burst(1000000); }
+    else if (b.id === "resetBtn") { reset(); }
+    else if (b.id === "lupeBtn") { lupeOpen(!lupe.open, true); }
+    else if (b.id === "lupeClose") { lupeOpen(false); }
+    else if (b.id === "lupeStream") { lupe.stream = !lupe.stream; b.setAttribute("aria-pressed", String(lupe.stream)); if (lupe.stream) lupeSeed(); else lupe.fl = []; }
+    else if (b.id === "lupeAuto") { lupe.auto = !lupe.auto; b.setAttribute("aria-pressed", String(lupe.auto)); }
+    else if (b.id === "lupeGo") { lupe.fixed = null; lupe.t0 = performance.now(); }
+    else if (b.id === "lupeBil") { lupe.showBil = !lupe.showBil; b.setAttribute("aria-pressed", String(lupe.showBil)); lupeInfo(); }
+    else if (b.id === "lupeTgt") { lupe.showTgt = !lupe.showTgt; b.setAttribute("aria-pressed", String(lupe.showTgt)); lupeInfo(); }
+  });
+  document.getElementById("lupeB").addEventListener("input", function () {
+    lupe.b = parseFloat(this.value); lupe.sgn = 1; lupeRecalc(false, true); lupe.fixed = null; lupe.t0 = performance.now();
+  });
+  cv.addEventListener("click", function (e) {
+    if (lupe.open) return;
+    var rc = cv.getBoundingClientRect(), x = (e.clientX - rc.left) * W / rc.width, y = (e.clientY - rc.top) * H / rc.height;
+    if (Math.abs(x - CX) < 26 && Math.abs(y - CY) < 76) lupeOpen(true, true);
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && lupe.open) lupeOpen(false); });
+  function sliders() {
+    document.getElementById("thickOut").textContent = de(thick(), 1) + " µm";
+    document.getElementById("energyOut").textContent = de(energy(), 1) + " MeV";
+  }
+  ["thick", "energy"].forEach(function (id) {
+    document.getElementById(id).addEventListener("input", function () { sliders(); reset(); });
+  });
+
+  // Startwerte aus dem Link (für Screenshots). Mit start=N rechnet die Seite N Teilchen für das gewählte und für das andere Modell.
+  var q = new URLSearchParams(location.search);
+  if (q.get("modell") === "thomson") { state.model = "thomson"; group("[data-model]", "data-model", "thomson"); }
+  if (q.get("material") && RS.MATS[q.get("material")] && folieErlaubt(q.get("material"))) { state.mat = q.get("material"); group("[data-mat]", "data-mat", state.mat); }
+  if (q.get("dicke") && !begrenzt()) document.getElementById("thick").value = q.get("dicke");
+  if (q.get("energie") && !begrenzt()) document.getElementById("energy").value = q.get("energie");
+  var th = q.get("theme") || (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  if (th === "dark" || th === "light") { state.theme = th; document.documentElement.setAttribute("data-theme", th); group("[data-theme-btn]", "data-theme-btn", th); }
+  applyLizenz(); sliders(); table(); draw();
+  if (q.get("lupe") === "1") {
+    lupe.showBil = q.get("billard") === "1"; lupe.showTgt = q.get("ziel") === "1";
+    if (q.get("strahl") === "0") lupe.stream = false;
+    if (q.get("auto") === "0") lupe.auto = false;
+    document.getElementById("lupeStream").setAttribute("aria-pressed", String(lupe.stream));
+    document.getElementById("lupeAuto").setAttribute("aria-pressed", String(lupe.auto));
+    document.getElementById("lupeBil").setAttribute("aria-pressed", String(lupe.showBil)); document.getElementById("lupeTgt").setAttribute("aria-pressed", String(lupe.showTgt));
+    lupeOpen(true, true);
+    if (q.get("b")) { lupe.b = parseFloat(q.get("b")); lupeRecalc(false); }
+    if (q.get("t") !== null && q.get("t") !== "") lupe.fixed = Math.max(0, Math.min(1, parseFloat(q.get("t"))));
+    draw();
+  }
+  var n0 = parseInt(q.get("start"), 10);
+  if (!isNaN(n0) && n0 > 0) {
+    var other = state.model === "kern" ? "thomson" : "kern";
+    RS.run(other, state.mat, thick(), energy(), n0, S[other], 0);
+    burst(n0);
+  }
+
+  var last = null;
+  function frame(ts) {
+    if (last === null) last = ts;
+    var dt = Math.min(0.1, (ts - last) / 1000); last = ts;
+    if (state.running) {
+      carry += state.rate * dt;
+      var n = Math.floor(carry); carry -= n;
+      if (n > 0) { add(RS.run(state.model, state.mat, thick(), energy(), n, cur(), state.rate <= 200 ? n : 300), state.rate <= 200, dt * 1000); table(); }
+    }
+    landFlights();
+    if (lupe.open && lupe.auto && lupe.fixed === null && lupe.sel && (performance.now() - lupe.t0) / 1000 - lupeDur() > 2.2) lupeNext();
+    if (lupe.open && lupe.stream && lupe.geom) {
+      lupe.acc += dt / 0.35;
+      while (lupe.acc >= 1) {
+        lupe.acc -= 1;
+        if (lupe.fl.length < 24) { var bb = (Math.random() * 2 - 1) * lupe.geom.V * 0.9; lupe.fl.push({ b: Math.abs(bb), s: bb < 0 ? -1 : 1, t0: performance.now() }); }
+      }
+    }
+    draw();
+    if (state.running || flights.length || lupe.open) requestAnimationFrame(frame); else setTimeout(function () { requestAnimationFrame(frame); }, 120);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

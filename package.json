@@ -1,0 +1,9 @@
+{
+  "name": "cl-rutherford",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cogniviolabs: Rutherford-Lab (Goldfolienversuch)",
+  "scripts": {
+    "test": "node --test"
+  }
+}

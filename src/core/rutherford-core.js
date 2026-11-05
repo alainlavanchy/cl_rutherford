@@ -110,6 +110,11 @@
   function newStats() { return { n: 0, counts: [0, 0, 0, 0, 0, 0], fine: new Array(24).fill(0), ang: new Array(90).fill(0), max: 0 }; }
   function fineIdx(deg) { return deg < 0.1 ? 0 : Math.min(23, Math.floor(Math.log(deg / 0.1) / Math.log(1800) * 24)); }
   function angIdx(alpha) { return Math.min(89, Math.max(0, Math.floor((alpha + Math.PI) / (2 * Math.PI) * 90))); }
+  // Zählt ein Teilchen mit Ablenkwinkel deg (Grad) und Richtung alpha in die Statistik.
+  function record(stats, deg, alpha) {
+    stats.counts[binOf(deg)]++; stats.n++; stats.fine[fineIdx(deg)]++; stats.ang[angIdx(alpha)]++;
+    if (deg > stats.max) stats.max = deg;
+  }
   // Rechnet n Teilchen. sample: Zahl der Treffer, die für die Zeichnung zurückgegeben werden.
   function run(model, matId, t, E, n, stats, sample) {
     var m = MATS[matId], f = model === "kern" ? kern : thomson, o = { theta: 0, alpha: 0 }, hits = [], big = [];
@@ -117,11 +122,17 @@
     for (var i = 0; i < n; i++) {
       f(m, t, E, o);
       var deg = o.theta * 180 / Math.PI;
-      stats.counts[binOf(deg)]++; stats.n++; stats.fine[fineIdx(deg)]++; stats.ang[angIdx(o.alpha)]++;
-      if (deg > stats.max) stats.max = deg;
+      record(stats, deg, o.alpha);
       if (deg > 45) big.push(o.alpha); else if (i % step === 0) hits.push(o.alpha);
     }
     return { hits: hits, big: big };
+  }
+  // Rechnet n einzelne Teilchen, ohne zu zählen: [{ alpha, deg }]. Für kleine Raten, bei denen
+  // erst die Ankunft am Schirm gezählt wird (record).
+  function particles(model, matId, t, E, n) {
+    var m = MATS[matId], f = model === "kern" ? kern : thomson, o = { theta: 0, alpha: 0 }, out = [];
+    for (var i = 0; i < n; i++) { f(m, t, E, o); out.push({ alpha: o.alpha, deg: o.theta * 180 / Math.PI }); }
+    return out;
   }
   function median(model, matId, t, E, n) {
     var m = MATS[matId], f = model === "kern" ? kern : thomson, o = {}, a = [];
@@ -198,7 +209,7 @@
   var RS = {
     MATS: MATS, LABELS: LABELS, EDGES: EDGES, MESSREIHE: MESSREIHE, MESSREIHE_MITTEL: MESSREIHE_MITTEL,
     lupeGeom: lupeGeom, trajectory: trajectory, thomsonTrajectory: thomsonTrajectory, billard: billard,
-    p90: p90, run: run, newStats: newStats, setSeed: setSeed, median: median,
+    p90: p90, run: run, record: record, particles: particles, newStats: newStats, setSeed: setSeed, median: median,
     binOf: binOf, fineIdx: fineIdx, angIdx: angIdx, niceM: niceM
   };
   if (typeof module !== "undefined" && module.exports) module.exports = RS;

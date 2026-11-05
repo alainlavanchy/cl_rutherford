@@ -34,12 +34,12 @@ test("Obergrenze liegt weit über der höchsten Einzelrate (keine Wellen)", () =
 
 test("Startzeiten gleichmässig über das Bild verteilt, Ankunft nach 1,2 s", () => {
   const s = createStream();
-  s.emit([{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }], 1000, 16);
+  s.emit([{ a: 1, x: "p1" }, { a: 2, x: "p2" }, { a: 3 }, { a: 4 }], 1000, 16);
   const t0 = s.list().map(f => f.t0);
   assert.deepEqual(t0, [1002, 1006, 1010, 1014]);
   const landed = [];
-  s.land(1000 + FLIGHT_MS + 6, a => landed.push(a));   // t0 1002 und 1006 sind 1,2 s alt
-  assert.deepEqual(landed, [1, 2]);
+  s.land(1000 + FLIGHT_MS + 6, (a, big, x) => landed.push([a, x]));   // t0 1002 und 1006 sind 1,2 s alt
+  assert.deepEqual(landed, [[1, "p1"], [2, "p2"]]);   // Zusatzdaten kommen bei der Ankunft mit
   assert.equal(s.size(), 2);
 });
 

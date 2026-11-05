@@ -62,8 +62,11 @@
 
   // ----- Treffer -----
   // Treffer mit Zeitpunkt: die Blitze verglimmen (RSScene.FLASH, RSScene.BIG)
-  function land(a, big) {
+  // x (nur bei kleiner Rate): { deg, model } – das Teilchen wird erst bei der Ankunft gezählt
+  var landedStat = false;
+  function land(a, big, x) {
     var t = performance.now();
+    if (x) { RS.record(S[x.model], x.deg, a); landedStat = true; }
     if (big) { bigs.push({ a: a, t: t }); if (bigs.length > BIG_CAP) bigs.shift(); tracks.push(a); while (tracks.length > TRACK_CAP) tracks.shift(); }
     else { dots.push({ a: a, t: t }); if (dots.length > DOT_CAP) dots.splice(0, dots.length - DOT_CAP); }
     dirty = true;
@@ -78,14 +81,9 @@
     if (n) bigs.splice(0, n);
     return dots.length > 0 || bigs.length > 0;
   }
-  // Bei kleiner Rate fliegt jedes Teilchen einzeln; der Treffer erscheint bei der Ankunft (stream.js).
-  function add(res, fly, frameMs, now) {
-    if (fly && !reduce) {
-      var items = res.hits.map(function (a) { return { a: a, big: false }; })
-        .concat(res.big.map(function (a) { return { a: a, big: true }; }));
-      stream.emit(items, now, frameMs);
-      return;
-    }
+  // Grosse Rate oder reduzierte Bewegung: Treffer sofort zeigen (bereits gezählt in RS.run).
+  // Kleine Rate: siehe Bildschleife, dort fliegt jedes Teilchen und wird bei der Ankunft gezählt.
+  function add(res) {
     res.hits.forEach(function (a) { land(a, false); });
     res.big.forEach(function (a) { land(a, true); });
   }
@@ -99,7 +97,7 @@
     var model = state.model, mat = state.mat, t = thick(), E = energy(), stats = S[model];
     Burst.runChunked({
       total: n,
-      step: function (m) { add(RS.run(model, mat, t, E, m, stats, 400), false); },
+      step: function (m) { add(RS.run(model, mat, t, E, m, stats, 400)); },
       onProgress: function (d, tot) {
         $("burstInfo").textContent = d < tot ? "Rechne: " + fmtN(d) + " von " + fmtN(tot) + " Teilchen." : "";
         table(); kick();
@@ -250,9 +248,17 @@
     var now = performance.now();
     if (state.running) {
       var n = carry.take(state.rate, dtMs / 1000), single = state.rate <= Stream.MAX_SINGLE_RATE;
-      if (n > 0) { add(RS.run(state.model, state.mat, thick(), energy(), n, cur(), single ? n : 300), single, dtMs, now); tableThrottled(now); dirty = true; }
+      if (n > 0 && single && !reduce) {
+        // Kleine Rate: jedes Teilchen fliegt einzeln; Kranz, Tabelle und Diagramm zählen es erst bei der Ankunft
+        var model = state.model;
+        stream.emit(RS.particles(model, state.mat, thick(), energy(), n).map(function (p) {
+          return { a: p.alpha, big: p.deg > 45, x: { deg: p.deg, model: model } };
+        }), now, dtMs);
+      } else if (n > 0) { add(RS.run(state.model, state.mat, thick(), energy(), n, cur(), single ? n : 300)); tableThrottled(now); dirty = true; }
     }
+    landedStat = false;
     stream.land(now, land);
+    if (landedStat) { if (stream.size() === 0) table(); else tableThrottled(now); }
     lupe.tick(dtMs / 1000, now);
     var glowing = prune(now);
     var moving = state.running || stream.size() > 0 || glowing || lupe.animating(now);

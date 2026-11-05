@@ -50,6 +50,12 @@ test("Median sinkt mit der Energie (Gold 3 / 5 / 7,7 MeV: 6,6 / 3,9 / 2,5°)", (
   rising(v.slice().reverse()); [6.6, 3.9, 2.5].forEach((r, i) => near(v[i], r));
 });
 
+test("particles + record ergibt dieselbe Statistik wie run (gleicher Seed)", () => {
+  RS.setSeed(7); const a = RS.newStats(); RS.run("kern", "au", 1.2, 7.7, 20000, a, 0);
+  RS.setSeed(7); const b = RS.newStats(); RS.particles("kern", "au", 1.2, 7.7, 20000).forEach(p => RS.record(b, p.deg, p.alpha));
+  assert.deepEqual(b, a);
+});
+
 test("Winkelbereiche und Indizes", () => {
   assert.equal(RS.binOf(0.5), 0); assert.equal(RS.binOf(1), 1); assert.equal(RS.binOf(90.1), 5); assert.equal(RS.binOf(180), 5);
   assert.equal(RS.fineIdx(0.05), 0); assert.equal(RS.fineIdx(180), 23);

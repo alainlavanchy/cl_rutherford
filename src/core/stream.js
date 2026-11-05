@@ -33,20 +33,20 @@
     return {
       flightMs: flightMs,
       cap: cap,
-      // Teilchen eines Bildes einreihen. items: [{ a: Richtung, big: bool }]; frameMs: Dauer des Bildes.
+      // Teilchen eines Bildes einreihen. items: [{ a: Richtung, big: bool, x: Zusatz }]; frameMs: Dauer des Bildes.
       emit: function (items, now, frameMs) {
         var span = frameMs > 0 ? frameMs : 16, k = items.length;
         for (var i = 0; i < k; i++) {
           if (flights.length >= cap) break;
-          flights.push({ a: items[i].a, big: !!items[i].big, t0: now + (i + 0.5) / k * span });
+          flights.push({ a: items[i].a, big: !!items[i].big, x: items[i].x, t0: now + (i + 0.5) / k * span });
         }
       },
-      // Angekommene Teilchen entfernen und an onLand(a, big) geben.
+      // Angekommene Teilchen entfernen und an onLand(a, big, x) geben.
       land: function (now, onLand) {
         var keep = [];
         for (var i = 0; i < flights.length; i++) {
           var f = flights[i];
-          if (now - f.t0 >= flightMs) { if (onLand) onLand(f.a, f.big); } else keep.push(f);
+          if (now - f.t0 >= flightMs) { if (onLand) onLand(f.a, f.big, f.x); } else keep.push(f);
         }
         flights = keep;
       },

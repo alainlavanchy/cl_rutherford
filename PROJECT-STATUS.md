@@ -7,16 +7,16 @@ Wird nach jeder Sitzung aktualisiert (Anleitung: `prompts/status-update.md`). Fe
 | Stand | 2026-11-05 |
 | Spezifikation | `docs/rutherford-lab-minispec.md` (Entwurf) |
 | Auftrag | `prompts/01-rutherford-lab.md` |
-| Letzter erfasster Commit | 839b9b3 |
-| Aktueller Fokus | Schritt 3 erledigt: Hauptansicht |
-| Nächster Schritt | Schritt 4: Lupe |
+| Letzter erfasster Commit | b20002d |
+| Aktueller Fokus | Schritt 4 erledigt: Lupe |
+| Nächster Schritt | Schritt 5: Betriebsart und Lizenz (Oberfläche) |
 
 ## Bauplan (Auftrag, Abschnitt 9)
 
 - [x] 1. Plan (bestätigt 2026-11-05)
 - [x] 2. Kern und Tests, ohne Oberfläche
 - [x] 3. Hauptansicht
-- [ ] 4. Lupe
+- [x] 4. Lupe
 - [ ] 5. Betriebsart und Lizenz (Logik und Tests bereits in Schritt 2; Oberfläche offen)
 - [ ] 6. Design-Abnahme (Design-Skills 12) und Barrierefreiheit
 
@@ -43,10 +43,14 @@ Wird nach jeder Sitzung aktualisiert (Anleitung: `prompts/status-update.md`). Fe
 | O-04 | Basis-CSS: neue Klassen (Lupen-Knopf, Schloss, Topbar, Footer, Legal) vorerst in `assets/lab.css` | Plan | 2026-11-05 | offen, Änderungsbedarf Basis-CSS |
 | O-05 | `file://` und Tablet prüfen (Browser-Erweiterung öffnet keine Datei-URLs) | Plan | 2026-11-05 | offen (Alain) |
 | O-06 | Normale Ziffern im Canvas: Chrome übernimmt `font-feature-settings: "lnum"` vom Canvas-Element (gemessen: «3» ohne Unterlänge). Firefox und Safari ungeprüft | Sitzung 2 | 2026-11-05 | offen (Alain: in Firefox/Safari ansehen) |
-| O-07 | Schmale Ansicht nur simuliert (Seitenbreite per Skript auf 358 px), weil sich das Browserfenster nicht verkleinern liess; echte Handy-Ansicht ungeprüft | Sitzung 2 | 2026-11-05 | offen (Alain) |
-| O-08 | Hinweistext «Flugbahn»: Demo sagt «Die roten Linien», im Lab «Die Linien mit Ring am Schirm» (kein Rot mehr in der Szene) | Sitzung 2 | 2026-11-05 | offen (Alain: Wortlaut bestätigen) |
+| O-07 | Schmale Ansicht nur simuliert (Seitenbreite per Skript auf 358 px), weil sich das Browserfenster nicht verkleinern liess; echte Handy-Ansicht ungeprüft | Sitzung 2 | 2026-11-05 | teilweise: Alain hat das verkleinerte Fenster geprüft (funktioniert); Handy und Tablet offen |
+| O-08 | Hinweistext «Flugbahn»: Demo sagt «Die roten Linien», im Lab «Die Linien mit Ring am Schirm» (kein Rot mehr in der Szene) | Sitzung 2 | 2026-11-05 | erledigt 2026-11-05: bestätigt; nach Wegfall der Ringe «Die Linien zu den grossen Punkten am Schirm» (b20002d) |
 | O-09 | Fuss nennt «Anregung: PhET «Rutherford Scattering» (CC BY). Eigene Umsetzung ohne übernommenen Code.» nach Spezifikation; rechtliche Prüfung offen | Sitzung 2 | 2026-11-05 | offen (Alain) |
 | O-10 | Legal-Overlay lädt `/data/legal.json` (Wurzel der Domain, nach SKILL-labs); lokal und unter `file://` erscheint die Fehlermeldung | Sitzung 2 | 2026-11-05 | zur Kenntnis |
+| O-11 | Hinweistext «Lupe»: Demo sagt «Die rot markierte Bahn», im Lab «Die markierte Bahn» (Leitton statt Rot) | Sitzung 3 | 2026-11-05 | erledigt 2026-11-05: bestätigt (Alain) |
+| O-12 | Lupe schmal: Legende im Canvas unter der Linse (statt HTML-Liste wie im Plan); der Erklärtext neben der Legende entfällt schmal, er steht im Panel darunter | Sitzung 3 | 2026-11-05 | zur Kenntnis |
+| O-13 | `prefers-reduced-motion` in der Lupe (Endzustand, kein Strahl, Einzelschritte mit «Teilchen losschicken») gebaut, im Browser nicht geprüft | Sitzung 3 | 2026-11-05 | offen, Schritt 6 |
+| O-14 | Thomson-Lupe: Faktor als grosse Zahl «× 2000» mit der Zeile «Ablenkung so stark vergrössert gezeichnet» (Demo: nur im Untertitel und in der Legende) | Sitzung 3 | 2026-11-05 | zur Kenntnis |
 
 Erledigte Punkte bleiben stehen und werden mit Datum und Hash als erledigt markiert.
 
@@ -62,6 +66,9 @@ Erledigte Punkte bleiben stehen und werden mit Datum und Hash als erledigt marki
 | 2026-11-05 | Plan freigegeben; Schätzwerte der Physik unverändert aus der Demo |
 | 2026-11-05 | Messreihe wie in der Spezifikation: vom Original bestätigt, Abweichungen bei Zinn, Kupfer, Eisen gehören zum Original |
 | 2026-11-05 | Toleranz r_min im Test 0,1 % |
+| 2026-11-05 | Farbkonzept A (Ocker für Blitze) umgesetzt und wieder verworfen: passt besonders im Dunkelmodus nicht |
+| 2026-11-05 | Szene nur in Pflaume (Blitze, Flugbahnen, fliegende Teilchen, Balken); starke Ablenkung als grösserer voller Punkt ohne Ring (Abweichung vom Auftrag §4.3 «Ringe für Ablenkungen über 45 Grad») |
+| 2026-11-05 | Wortlaut der Hinweise «Flugbahn» und «Lupe» ohne «rot» bestätigt |
 
 ## Änderungsbedarf an der Spezifikation
 
@@ -71,6 +78,25 @@ Erledigte Punkte bleiben stehen und werden mit Datum und Hash als erledigt marki
 ## Sitzungsprotokoll
 
 Neueste Sitzung oben. Neue Blöcke kommen direkt unter diese Zeile.
+
+### Sitzung 3: 2026-11-05, Farbkonzept A und Schritt 4 (Lupe)
+
+- Prompt: `prompts/01-rutherford-lab.md`, Schritt 4; Farbwunsch von Alain
+- Erledigt:
+  - Farbkonzept A: Blitze in Ocker mit Tuschelinie, Flugbahnen in Tusche (898c8a1); nach Rückmeldung verworfen: Szene wieder in Pflaume, starke Ablenkung als grösserer Punkt ohne Ring, Hinweis «Flugbahn» angepasst, CLAUDE.md nachgeführt (b20002d)
+  - Lupe: Knopf mit Symbol neben der Folienwahl, Klick auf die Folie, Escape; Kernmodell mit Strahl, markierter Bahn, Kraftpfeil, Bahnwechsel, Regler b, «Teilchen losschicken», Billardkugel, Zielscheibe, Hinweis bei Aluminium; Thomson-Atom mit Rasterton und Faktor gross im Bild; Modellwechsel passt die Lupe sofort an; Link-Parameter `lupe`, `strahl`, `auto`, `b`, `t`, `billard`, `ziel`; Hinweis «Lupe» (e115bb7)
+  - Browserprüfung Chrome (localhost): Gold, Aluminium frontal, Thomson, Billardkugel und Zielscheibe, Hell und Dunkel, breit und schmal (simuliert), Bahnwechsel, Fokus nach Escape, keine Konsolenfehler (ohne Commit)
+- Nicht erledigt oder verschoben:
+  - Lizenzanzeige (Schritt 5), Abnahme (Schritt 6)
+  - O-13
+- Tests: 42 bestanden, 0 fehlgeschlagen (`node --test`)
+- Commits:
+
+  | Hash | Nachricht |
+  | --- | --- |
+  | 898c8a1 | feat: Farbkonzept A, Blitze in Ocker mit Tuschelinie, Flugbahnen in Tusche |
+  | e115bb7 | feat: Lupe mit Strahl, markierter Bahn, Billardkugel, Zielscheibe und Thomson-Atom |
+  | b20002d | fix: Blitze wieder in Pflaume, starke Ablenkung als grösserer Punkt ohne Ring |
 
 ### Sitzung 2: 2026-11-05, Schritt 3 (Hauptansicht)
 

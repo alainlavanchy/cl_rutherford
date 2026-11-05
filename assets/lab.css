@@ -1,0 +1,186 @@
+/*
+ * Lab-Klassen für das Rutherford-Lab (Goldfolienversuch).
+ * Tokens, Grundschrift, Schriften und gemeinsame Klassen (.btn, .segmented, .card,
+ * .callout, .scene, .badge, .caption, .lab-title) kommen aus
+ * https://assets.cogniviolabs.com/css/cognivio-common.v1.css (wird vorher geladen).
+ * Hier nur Layout und Klassen, die es in der Basis-CSS noch nicht gibt.
+ * Nur var(--…), keine Farbwerte.
+ *
+ * Änderungsbedarf Basis-CSS (O-04): .topbar, .breadcrumb, .theme-toggle, .page-footer,
+ * .overlay und .legal-* sind in jedem Lab gleich und gehören in die Basis-CSS.
+ */
+
+/* Normale Ziffern, auch im Canvas: Chrome übernimmt die Einstellung vom Canvas-Element */
+body { font-feature-settings: "lnum"; }
+/* .ui-label setzt in der Basis-CSS keine Schrift; als <span> erbte es sonst die Serif */
+.ui-label, output { font-family: var(--font-ui); }
+[hidden] { display: none !important; }
+
+/* ─── Topbar ──────────────────────────────────────────────────────── */
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+.topbar__logo {
+  font-family: var(--font-ui);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+.topbar__logo-accent { color: var(--lab-accent); }
+.topbar__right { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+
+.breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); font-family: var(--font-ui); font-size: var(--text-xs); }
+.breadcrumb a { color: var(--color-text-soft); text-decoration: none; }
+.breadcrumb a:hover { color: var(--color-text); text-decoration: underline; text-decoration-color: var(--color-signal); }
+.breadcrumb__sep { color: var(--color-border); }
+.breadcrumb__current { color: var(--color-text); }
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  background: transparent;
+  border: 1.5px solid var(--color-text);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+.theme-toggle:hover { color: var(--color-bg); background: var(--color-text); }
+.theme-toggle svg { width: 18px; height: 18px; }
+
+/* ─── Seite ───────────────────────────────────────────────────────── */
+
+.lab-page { padding-block: var(--space-6) var(--space-7); }
+.lab-head { margin-bottom: var(--space-5); }
+.lab-head .meta { margin: 0 0 var(--space-2); }
+.lab-head .lab-title { margin-bottom: var(--space-3); }
+.lab-question { font-size: var(--text-lg); margin: 0 0 var(--space-2); max-width: var(--measure); }
+.lab-prompt { margin: 0 0 var(--space-3); max-width: var(--measure); color: var(--color-text-soft); }
+.lp-link { font-family: var(--font-ui); font-size: var(--text-sm); }
+
+/* Bedienleiste: Gruppen mit Beschriftung links */
+.lab-controls { display: flex; flex-direction: column; gap: var(--space-4); }
+.lab-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); }
+.lab-group { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
+.lab-group > .ui-label { min-width: 5.5em; }
+.lab-model { margin-bottom: var(--space-4); }
+.lab-model .ui-label { min-width: auto; }
+
+/* Regler mit Wert */
+.lab-slider { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
+.lab-slider input[type="range"] { width: 12rem; min-height: 44px; margin: 0; }
+.lab-slider output { min-width: 5.5em; font-weight: 600; font-feature-settings: "lnum", "tnum"; }
+
+/* Knöpfe in Gruppen: Touch-Ziel 44 px */
+.lab-page .btn { min-height: 2.75rem; }
+
+/* ─── Bühne ───────────────────────────────────────────────────────── */
+
+.lab-scene { margin-bottom: var(--space-4); }
+.lab-scene canvas { display: block; width: 100%; height: auto; }
+
+/* ─── Anzeigen ────────────────────────────────────────────────────── */
+
+.lab-card { margin-top: var(--space-4); }
+.lab-table { width: auto; min-width: min(100%, 26rem); font-family: var(--font-ui); font-size: var(--text-sm); }
+.lab-table th, .lab-table td { text-align: right; padding: var(--space-1) var(--space-3); }
+.lab-table th:first-child, .lab-table td:first-child { text-align: left; }
+.lab-table tr.is-big td { font-weight: 650; }
+.lab-result { margin: var(--space-4) 0 var(--space-2); font-size: var(--text-lg); }
+.lab-compare { margin: 0; font-size: var(--text-sm); color: var(--color-text-soft); max-width: var(--measure); }
+.lab-progress { margin: var(--space-2) 0 0; font-family: var(--font-ui); font-size: var(--text-sm); color: var(--color-text-soft); }
+
+/* Hinweise zum Modell */
+.lab-notes { display: grid; gap: var(--space-3); margin-top: var(--space-5); grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
+.lab-notes .callout { margin: 0; font-size: var(--text-sm); }
+.lab-notes .callout p { margin: 0; }
+.lab-notes .ui-label { display: block; margin-bottom: var(--space-1); }
+
+/* Historische Messwerte */
+.lab-details { margin-top: var(--space-5); }
+.lab-details summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  cursor: pointer;
+}
+.lab-details > *:not(summary) { max-width: var(--measure); }
+.lab-details .lab-table { margin-bottom: var(--space-4); }
+
+.lab-links code { overflow-wrap: anywhere; }
+.lab-links { margin-top: var(--space-5); font-size: var(--text-xs); color: var(--color-text-soft); max-width: var(--measure); }
+
+/* ─── Fuss ────────────────────────────────────────────────────────── */
+
+.page-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-4);
+  border-top: 1px solid var(--color-border);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  color: var(--color-text-soft);
+}
+.page-footer__row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-2) var(--space-4); }
+.page-footer__brand { font-weight: 600; color: var(--color-text); }
+.page-footer__brand-accent { color: var(--lab-accent); }
+.page-footer__link {
+  min-height: 44px;
+  padding: 0 var(--space-1);
+  font: inherit;
+  color: var(--color-text-soft);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--color-signal);
+  text-underline-offset: 0.18em;
+}
+.page-footer__link:hover { color: var(--color-signal); }
+.page-footer p { margin: 0; }
+
+/* ─── Overlay (Rechtliches) ───────────────────────────────────────── */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: color-mix(in srgb, var(--color-bg) 85%, transparent);
+}
+.overlay__card {
+  position: relative;
+  width: min(100%, 40rem);
+  max-height: 85vh;
+  overflow: auto;
+  padding: var(--space-6) var(--space-5) var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+.overlay__close { position: absolute; top: var(--space-3); right: var(--space-3); }
+.overlay__title { margin-top: 0; }
+.legal-item { margin-bottom: var(--space-4); font-size: var(--text-sm); }
+.legal-item .ui-label { display: block; }

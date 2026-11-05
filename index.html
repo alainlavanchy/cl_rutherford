@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Goldfolienversuch | Cogniviolabs</title>
+  <link rel="preconnect" href="https://assets.cogniviolabs.com" crossorigin>
+  <link rel="stylesheet" href="https://assets.cogniviolabs.com/css/cognivio-common.v1.css">
+  <link rel="stylesheet" href="assets/lab.css">
+</head>
+<body data-lab="chemie">
+
+<header class="topbar">
+  <div class="topbar__logo" aria-label="Cogniviolabs">cogni<span class="topbar__logo-accent">vio</span> labs</div>
+  <div class="topbar__right">
+    <nav class="breadcrumb" aria-label="Seitenpfad">
+      <a href="https://www.cogniviolabs.com">Cogniviolabs</a>
+      <span class="breadcrumb__sep" aria-hidden="true">/</span>
+      <a href="https://www.cogniviolabs.com/lab/chemie">Chemie</a>
+      <span class="breadcrumb__sep" aria-hidden="true">/</span>
+      <span class="breadcrumb__current" aria-current="page">Goldfolienversuch</span>
+    </nav>
+    <button type="button" id="themeToggle" class="theme-toggle" aria-label="Helles oder dunkles Design">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 3a7 7 0 0 1 0 14z" fill="currentColor"/></svg>
+      <span id="themeLabel">Dunkel</span>
+    </button>
+  </div>
+</header>
+
+<main class="container lab-page">
+
+  <div class="lab-head">
+    <p class="meta">Chemie · Simulation · Atombau</p>
+    <h1 class="lab-title"><mark>Goldfolien</mark>versuch</h1>
+    <p class="lab-question">Wie lenkt eine Folie α-Teilchen ab?</p>
+    <p class="lab-prompt">Vorhersage zuerst: Was erwartest du bei einer Million Teilchen im Thomson-Modell, was im Kernmodell? Dann starte, wähle den Zeitraffer und vergleiche.</p>
+    <!-- Platz für eine spätere Vorhersage mit Auswahl und Auswertung (nicht in diesem Auftrag) -->
+    <a class="lp-link" href="https://www.cogniviolabs.com/lab/chemie/rutherford/lehrperson">Hinweise für Lehrpersonen</a>
+  </div>
+
+  <div class="lab-group lab-model">
+    <span class="ui-label" id="modelLabel">Modell</span>
+    <div class="segmented" role="group" aria-labelledby="modelLabel">
+      <button type="button" class="btn btn--secondary" data-model="thomson" aria-pressed="false">Thomson (Rosinenkuchen)</button>
+      <button type="button" class="btn btn--secondary" data-model="kern" aria-pressed="true">Kern (Rutherford)</button>
+    </div>
+  </div>
+
+  <div class="scene lab-scene" id="stage">
+    <canvas id="cv" role="img" aria-label="Quelle links, dünne Folie in der Mitte, kreisförmiger Schirm rundherum. Jeder Treffer erscheint als Punkt auf dem Schirm. Rechts ein Diagramm: Anteil der Teilchen je Winkelbereich für beide Modelle."></canvas>
+  </div>
+
+  <div class="card lab-controls">
+    <div class="lab-row">
+      <div class="lab-group">
+        <span class="ui-label" id="matLabel">Folie</span>
+        <div class="segmented" role="group" aria-labelledby="matLabel">
+          <button type="button" class="btn btn--secondary" data-mat="au" aria-pressed="true">Gold</button>
+          <button type="button" class="btn btn--secondary" data-mat="pt" aria-pressed="false">Platin</button>
+          <button type="button" class="btn btn--secondary" data-mat="ag" aria-pressed="false">Silber</button>
+          <button type="button" class="btn btn--secondary" data-mat="cu" aria-pressed="false">Kupfer</button>
+          <button type="button" class="btn btn--secondary" data-mat="al" aria-pressed="false">Aluminium</button>
+        </div>
+      </div>
+      <!-- Lupen-Knopf folgt in Schritt 4 -->
+    </div>
+    <div class="lab-row">
+      <div class="lab-slider">
+        <label class="ui-label" for="thick">Dicke</label>
+        <input id="thick" type="range" min="0.2" max="3" step="0.1" value="1.2">
+        <output id="thickOut" for="thick">1,2 µm</output>
+      </div>
+      <div class="lab-slider">
+        <label class="ui-label" for="energy">Energie</label>
+        <input id="energy" type="range" min="3" max="8" step="0.1" value="7.7">
+        <output id="energyOut" for="energy">7,7 MeV</output>
+      </div>
+    </div>
+    <div class="lab-row">
+      <div class="lab-group">
+        <span class="ui-label" id="rateLabel">Zeitraffer</span>
+        <div class="segmented" role="group" aria-labelledby="rateLabel">
+          <button type="button" class="btn btn--secondary" data-rate="5" aria-pressed="false">5 pro s</button>
+          <button type="button" class="btn btn--secondary" data-rate="200" aria-pressed="false">200 pro s</button>
+          <button type="button" class="btn btn--secondary" data-rate="20000" aria-pressed="true">20&#8239;000 pro s</button>
+          <button type="button" class="btn btn--secondary" data-rate="1000000" aria-pressed="false">1 Mio. pro s</button>
+        </div>
+      </div>
+      <div class="lab-group">
+        <button type="button" id="runBtn" class="btn" aria-pressed="false">Start</button>
+        <button type="button" id="burstBtn" class="btn btn--secondary">+ 1 Million sofort</button>
+        <button type="button" id="resetBtn" class="btn btn--secondary">Zurücksetzen</button>
+      </div>
+    </div>
+    <p class="lab-progress" id="burstInfo" role="status"></p>
+  </div>
+
+  <div class="card lab-card">
+    <table class="lab-table" aria-label="Ablenkwinkel der Teilchen">
+      <thead><tr><th scope="col">Ablenkung</th><th scope="col">Teilchen</th><th scope="col">Anteil</th></tr></thead>
+      <tbody id="tbl"></tbody>
+    </table>
+    <p class="lab-result" id="result" role="status"></p>
+    <p class="lab-compare" id="compare"></p>
+  </div>
+
+  <div class="lab-notes">
+    <div class="callout"><span class="ui-label">Modell</span><p>Das ist ein Modell. Die Elektronen sind nicht gezeichnet, sie lenken α-Teilchen kaum ab. Bahnen gibt es hier nicht. Der Kern ist etwa hunderttausendmal kleiner als das Atom, die Zeichnung ist nicht massstäblich.</p></div>
+    <div class="callout"><span class="ui-label">Kaum Stoff, aber nicht nichts</span><p>Zwischen Kern und Hülle ist fast kein Stoff. Die Ablenkung geschieht durch die elektrische Abstossung zwischen dem positiven α-Teilchen und dem positiven Kern, also durch ein Feld. Das α-Teilchen berührt den Kern nie und prallt nicht wie eine Billardkugel ab.</p></div>
+    <div class="callout"><span class="ui-label">Flugbahn</span><p>Die Linien mit Ring am Schirm zeigen die Flugbahn stark abgelenkter Teilchen, schematisch: gerade zur Folie, dort abgelenkt, gerade zum Schirm. In Wirklichkeit krümmt die Abstossung die Bahn nahe am Kern. Bei kleiner Rate fliegen einzelne Teilchen als Punkte durch das Bild.</p></div>
+    <!-- Hinweis «Lupe» folgt in Schritt 4 -->
+    <div class="callout"><span class="ui-label">Zeitraffer</span><p>Die starken Ablenkungen sind sehr selten. Geiger und Marsden mussten die Blitze auf dem Schirm einzeln zählen. Hier läuft die Zeit gerafft.</p></div>
+    <div class="callout"><span class="ui-label">Zahlen</span><p>Die Rechnung nutzt die Rutherford-Streuung an einem punktförmigen Kern. Unter 0,5 Grad ist die Streuung durch die Abschirmung der Elektronen als Gauss-Verteilung genähert. Im Thomson-Modell ist der Kern der Verteilung derselbe, es fehlen aber die seltenen grossen Winkel: Kleine Winkel unterscheiden die Modelle nicht, grosse schon. Die Werte sind noch nicht geprüft.</p></div>
+  </div>
+
+  <details class="card lab-details">
+    <summary>Historische Messwerte (Rutherford 1911)</summary>
+    <p><strong>Platin, dicke Platte:</strong> Etwa 1 von 8000 α-Teilchen von Radium C wird in Einfallsrichtung zurückgestreut. Der Anteil ist aus der Beobachtung bei etwa 90 Grad unter der Annahme gleichmässiger Streuung in alle Richtungen berechnet (Geiger und Marsden, zitiert bei Rutherford).</p>
+    <p><strong>Gold, dünne Folie:</strong> Etwa 1 von 20&#8239;000 mit Ablenkung über 90 Grad. Bedingungen und Quelle noch zu nennen.</p>
+    <p>Die beiden Zahlen gehören zu verschiedenen Aufbauten und sind nicht direkt vergleichbar. Das Lab sagt nicht, Platin streue stärker als Gold.</p>
+    <div id="messreihe">
+      <p><strong>Dicke Schichten aus acht Metallen:</strong> z ist die relative Zahl der Blitze pro Minute auf einem Zinksulfid-Schirm.</p>
+      <table class="lab-table" aria-label="Messreihe zu dicken Schichten">
+        <thead><tr><th scope="col">Metall</th><th scope="col">Atommasse</th><th scope="col">z</th><th scope="col">z / A<sup>3/2</sup></th></tr></thead>
+        <tbody id="messreiheBody"></tbody>
+      </table>
+      <p>Aufgabe für Fortgeschrittene: Trage z gegen die Atommasse auf und finde heraus, dass z / A<sup>3/2</sup> etwa konstant ist.</p>
+    </div>
+    <p id="messreiheLock" hidden>Die Messreihe zu acht Metallen mit der Aufgabe gehört zur Lizenz.</p>
+  </details>
+
+  <p class="lab-links">Für Screenshots: Link mit <code>?modell=kern&amp;material=au&amp;dicke=1.2&amp;energie=7.7&amp;theme=dark&amp;start=1000000</code> (der Wert bei <code>start</code> ist die Zahl der sofort gerechneten Teilchen).</p>
+</main>
+
+<footer class="page-footer">
+  <div class="page-footer__row">
+    <span class="page-footer__brand">cogni<span class="page-footer__brand-accent">vio</span> labs</span>
+    <button type="button" class="page-footer__link" data-legal="impressum">Impressum</button>
+    <button type="button" class="page-footer__link" data-legal="datenschutz">Datenschutz</button>
+    <a class="page-footer__link" href="https://www.cogniviolabs.com/lab/chemie/rutherford/lehrperson">Für Lehrpersonen</a>
+  </div>
+  <p>Anregung: PhET «Rutherford Scattering» (CC BY). Eigene Umsetzung ohne übernommenen Code.</p>
+  <p>© 2026 Cogniviolabs · Alain Nicolas Lavanchy · Kanton Aargau</p>
+</footer>
+
+<div class="overlay" id="overlayLegal" role="dialog" aria-modal="true" aria-labelledby="legalTitle" hidden>
+  <div class="overlay__card">
+    <button type="button" class="btn btn--secondary overlay__close" id="legalClose">Schliessen</button>
+    <p class="meta">Rechtliches</p>
+    <h2 class="overlay__title" id="legalTitle"></h2>
+    <p id="legalLoading">Wird geladen …</p>
+    <div id="legalContent" hidden></div>
+    <p id="legalError" class="callout callout--error" hidden>Fehler: Der Inhalt konnte nicht geladen werden. Bitte später erneut versuchen.</p>
+  </div>
+</div>
+
+<script src="src/config.js"></script>
+<script src="src/core/rutherford-core.js"></script>
+<script src="src/core/stream.js"></script>
+<script src="src/core/burst.js"></script>
+<script src="src/core/license.js"></script>
+<script src="src/ui/palette.js"></script>
+<script src="src/ui/canvas.js"></script>
+<script src="src/ui/chart.js"></script>
+<script src="src/ui/scene.js"></script>
+<script src="src/ui/shell.js"></script>
+<script src="src/ui/controls.js"></script>
+</body>
+</html>

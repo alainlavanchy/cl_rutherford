@@ -93,6 +93,11 @@ body { font-feature-settings: "lnum"; }
 
 /* Knöpfe in Gruppen: Touch-Ziel 44 px */
 .lab-page .btn { min-height: 2.75rem; }
+/* Fokus deutlich auch auf gedrückten (zinnoberroten) Knöpfen: Lücke in Papierfarbe, dann voller Ring.
+ * Kandidat für die Basis-CSS (O-04). */
+.btn:focus-visible, .theme-toggle:focus-visible, .page-footer__link:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4.5px var(--color-signal);
+}
 
 /* Lupen-Knopf: Symbol und Text, kräftigere Linie (Kandidat für die Basis-CSS, O-04) */
 .lab-lupe-btn { border-width: 2px; padding-left: 0.9em; }
@@ -201,7 +206,7 @@ body { font-feature-settings: "lnum"; }
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
 }
-.overlay__close { position: absolute; top: var(--space-3); right: var(--space-3); }
+.overlay__close { position: absolute; top: var(--space-3); right: var(--space-3); min-height: 2.75rem; }
 .overlay__title { margin-top: 0; }
 .legal-item { margin-bottom: var(--space-4); font-size: var(--text-sm); }
 .legal-item .ui-label { display: block; }

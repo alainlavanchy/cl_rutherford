@@ -59,7 +59,7 @@
         ctx.stroke();
       }
       // Legende: Linienmuster plus Name (zweite Information neben der Farbe)
-      var lx = box.x0 + 6 + k * 118 * f, ly = box.y0 - 6 * f;
+      var lx = box.x0 + 6 + k * 150 * f, ly = box.y0 - 6 * f;
       ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 26, ly); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle = pal.text; ctx.font = stage.ui(12); ctx.textAlign = "left";
       ctx.fillText(m.label + (st.n > 0 ? "" : " (leer)"), lx + 31, ly + 4);

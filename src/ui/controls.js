@@ -42,6 +42,8 @@
         : "Lupe: ein einzelnes Atom mit Kern als Punkt. Bahnen von α-Teilchen werden vom Kern abgestossen, eine Bahn ist markiert.");
     }
   });
+  // Schalter nach dem tatsächlichen Zustand (bei reduzierter Bewegung starten Strahl und Bahnwechsel aus)
+  toggle($("lupeStream"), lupe.state.stream); toggle($("lupeAuto"), lupe.state.auto);
   function lupeOpen(on, resetB) {
     lupe.open(on, resetB);
     $("lupePanel").hidden = !on;
@@ -107,6 +109,10 @@
   }
 
   // ----- Tabelle und Ergebnis -----
+  // Während des Laufs höchstens alle 250 ms aktualisieren; die Ansage des Ergebnisses ruht (aria-live off)
+  // und kommt einmal bei Pause, damit ein Screenreader nicht in jedem Bild vorliest.
+  var lastTable = 0;
+  function tableThrottled(now) { if (now - lastTable >= 250) { lastTable = now; table(); } }
   function table() {
     var st = cur(), html = "";
     for (var i = 0; i < 6; i++) {
@@ -167,6 +173,8 @@
   function setRun(on) {
     state.running = on; var b = $("runBtn");
     b.setAttribute("aria-pressed", String(on)); b.textContent = on ? "Pause" : "Start";
+    $("result").setAttribute("aria-live", on ? "off" : "polite");
+    if (!on) table();
     kick();
   }
   document.addEventListener("click", function (e) {
@@ -242,7 +250,7 @@
     var now = performance.now();
     if (state.running) {
       var n = carry.take(state.rate, dtMs / 1000), single = state.rate <= Stream.MAX_SINGLE_RATE;
-      if (n > 0) { add(RS.run(state.model, state.mat, thick(), energy(), n, cur(), single ? n : 300), single, dtMs, now); table(); dirty = true; }
+      if (n > 0) { add(RS.run(state.model, state.mat, thick(), energy(), n, cur(), single ? n : 300), single, dtMs, now); tableThrottled(now); dirty = true; }
     }
     stream.land(now, land);
     lupe.tick(dtMs / 1000, now);

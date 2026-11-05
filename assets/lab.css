@@ -88,10 +88,17 @@ body { font-feature-settings: "lnum"; }
 /* Knöpfe in Gruppen: Touch-Ziel 44 px */
 .lab-page .btn { min-height: 2.75rem; }
 
+/* Lupen-Knopf: Symbol und Text, kräftigere Linie (Kandidat für die Basis-CSS, O-04) */
+.lab-lupe-btn { border-width: 2px; padding-left: 0.9em; }
+.lab-lupe-btn svg { width: 24px; height: 24px; flex: none; }
+.lab-lupe-info { font-size: var(--text-sm); max-width: var(--measure); }
+.lab-lupe-info p { margin: 0 0 var(--space-2); }
+
 /* ─── Bühne ───────────────────────────────────────────────────────── */
 
 .lab-scene { margin-bottom: var(--space-4); }
 .lab-scene canvas { display: block; width: 100%; height: auto; }
+.lab-scene canvas.is-foil { cursor: zoom-in; }
 
 /* ─── Anzeigen ────────────────────────────────────────────────────── */
 

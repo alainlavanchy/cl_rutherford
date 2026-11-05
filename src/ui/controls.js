@@ -1,6 +1,6 @@
 /**
  * Hauptansicht: Zustand, Bedienung, Zeitraffer, Tabelle, Ergebnis, Link-Parameter, Bildschleife.
- * Verhalten wie in der Referenzdemo. Lupe folgt in Schritt 4, Anzeige der Lizenzsperren in Schritt 5.
+ * Verhalten wie in der Referenzdemo. Anzeige der Lizenzsperren folgt in Schritt 5.
  */
 (function () {
   "use strict";
@@ -27,7 +27,28 @@
   var stage = window.RSCanvas.createStage($("cv"), $("stage"), window.RSScene.LAYOUTS, function () { dirty = true; kick(); });
   function applyFonts() { stage.setFonts(pal.colors.fontUi, pal.colors.fontTitle); }
   applyFonts();
+  var CV_LABEL = $("cv").getAttribute("aria-label");
+  var lupe = window.RSLupe.createLupe({
+    stage: stage, reduce: reduce,
+    params: function () { return { mat: state.mat, E: energy(), t: thick(), model: state.model }; },
+    onInfo: function (html, bText) { $("lupeInfo").innerHTML = html; $("lupeBOut").textContent = bText; },
+    onToggles: function (o) {
+      $("lupeBil").hidden = o.thomson; $("lupeTgt").hidden = o.thomson;
+      var sl = $("lupeB"); sl.max = String(o.max); sl.step = String(o.step); sl.value = String(o.b);
+      $("cv").setAttribute("aria-label", o.thomson
+        ? "Lupe: ein Atom im Thomson-Modell. Die positive Ladung ist gleichmässig verteilt, die Bahnen biegen kaum ab. Die Ablenkung ist vergrössert gezeichnet."
+        : "Lupe: ein einzelnes Atom mit Kern als Punkt. Bahnen von α-Teilchen werden vom Kern abgestossen, eine Bahn ist markiert.");
+    }
+  });
+  function lupeOpen(on, resetB) {
+    lupe.open(on, resetB);
+    $("lupePanel").hidden = !on;
+    $("lupeBtn").setAttribute("aria-pressed", String(on));
+    if (!on) $("cv").setAttribute("aria-label", CV_LABEL);
+    kick();
+  }
   function draw(now) {
+    if (lupe.state.open) { lupe.draw(pal.colors, now); dirty = false; return; }
     window.RSScene.draw(stage, pal.colors, {
       model: state.model, thick: thick(), S: S, dots: dots, bigs: bigs, tracks: tracks,
       flights: stream.list(), now: now
@@ -53,7 +74,7 @@
     res.big.forEach(function (a) { land(a, true); });
   }
   function clearHits() { dots = []; bigs = []; tracks = []; stream.clear(); carry.reset(); dirty = true; }
-  function reset() { S = { kern: RS.newStats(), thomson: RS.newStats() }; clearHits(); table(); kick(); }
+  function reset() { S = { kern: RS.newStats(), thomson: RS.newStats() }; clearHits(); table(); lupe.recalc(false); kick(); }
 
   // «+ 1 Million sofort»: in Stücken, ohne die Seite zu blockieren
   function burst(n) {
@@ -102,7 +123,8 @@
   function group(sel, attr, val) {
     document.querySelectorAll(sel).forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute(attr) === val)); });
   }
-  function setModel(m) { state.model = m; group("[data-model]", "data-model", m); clearHits(); table(); kick(); }
+  function setModel(m) { state.model = m; group("[data-model]", "data-model", m); clearHits(); table(); lupe.recalc(true); kick(); }
+  function toggle(btn, on) { btn.setAttribute("aria-pressed", String(on)); }
   function setRun(on) {
     state.running = on; var b = $("runBtn");
     b.setAttribute("aria-pressed", String(on)); b.textContent = on ? "Pause" : "Start";
@@ -120,9 +142,28 @@
     else if (b.id === "runBtn") setRun(!state.running);
     else if (b.id === "burstBtn") burst(1000000);
     else if (b.id === "resetBtn") reset();
+    else if (b.id === "lupeBtn") lupeOpen(!lupe.state.open, true);
+    else if (b.id === "lupeClose") { lupeOpen(false); $("lupeBtn").focus(); }
+    else if (b.id === "lupeStream") { lupe.setStream(!lupe.state.stream); toggle(b, lupe.state.stream); kick(); }
+    else if (b.id === "lupeAuto") { lupe.setAuto(!lupe.state.auto); toggle(b, lupe.state.auto); kick(); }
+    else if (b.id === "lupeGo") { lupe.go(); kick(); }
+    else if (b.id === "lupeBil") { lupe.setBil(!lupe.state.showBil); toggle(b, lupe.state.showBil); kick(); }
+    else if (b.id === "lupeTgt") { lupe.setTgt(!lupe.state.showTgt); toggle(b, lupe.state.showTgt); kick(); }
   });
+  $("lupeB").addEventListener("input", function () { lupe.setB(parseFloat(this.value)); kick(); });
+  // Klick auf die Folie öffnet die Lupe
+  function onFoil(e) {
+    var L = stage.layout, p = stage.toLogical(e.clientX, e.clientY);
+    return Math.abs(p[0] - L.CX) < 26 && Math.abs(p[1] - L.CY) < 76;
+  }
+  $("cv").addEventListener("click", function (e) { if (!lupe.state.open && onFoil(e)) lupeOpen(true, true); });
+  $("cv").addEventListener("mousemove", function (e) { this.classList.toggle("is-foil", !lupe.state.open && onFoil(e)); });
   ["thick", "energy"].forEach(function (id) { $(id).addEventListener("input", function () { sliders(); reset(); }); });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape") window.RSShell.closeLegal(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    if (window.RSShell.closeLegal()) return;          // zuerst das Overlay, dann die Lupe
+    if (lupe.state.open) { lupeOpen(false); $("lupeBtn").focus(); }
+  });
 
   window.RSShell.onThemeChange(function () { pal.refresh(); applyFonts(); dirty = true; kick(); });
   window.RSShell.initTheme(q.get("theme"));
@@ -135,6 +176,16 @@
   if (lw.dicke !== undefined) $("thick").value = lw.dicke;
   if (lw.energie !== undefined) $("energy").value = lw.energie;
   messreihe(); sliders(); table();
+  if (q.get("lupe") === "1") {
+    lupe.state.showBil = q.get("billard") === "1"; lupe.state.showTgt = q.get("ziel") === "1";
+    if (q.get("strahl") === "0") lupe.state.stream = false;
+    if (q.get("auto") === "0") lupe.state.auto = false;
+    toggle($("lupeStream"), lupe.state.stream); toggle($("lupeAuto"), lupe.state.auto);
+    toggle($("lupeBil"), lupe.state.showBil); toggle($("lupeTgt"), lupe.state.showTgt);
+    lupeOpen(true, true);
+    if (q.get("b")) lupe.setB(parseFloat(q.get("b")));
+    if (q.get("t") !== null && q.get("t") !== "") lupe.setFixed(Math.max(0, Math.min(1, parseFloat(q.get("t")))));
+  }
   // start=N: N Teilchen für das gewählte und für das andere Modell sofort rechnen
   var n0 = parseInt(q.get("start"), 10);
   if (!isNaN(n0) && n0 > 0) {
@@ -155,7 +206,8 @@
       if (n > 0) { add(RS.run(state.model, state.mat, thick(), energy(), n, cur(), single ? n : 300), single, dtMs, now); table(); dirty = true; }
     }
     stream.land(now, land);
-    var moving = state.running || stream.size() > 0;
+    lupe.tick(dtMs / 1000, now);
+    var moving = state.running || stream.size() > 0 || lupe.animating(now);
     if (moving || dirty) draw(now);
     if (moving) rafId = requestAnimationFrame(frame); else last = null;
   }

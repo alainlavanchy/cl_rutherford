@@ -63,7 +63,15 @@
           <button type="button" class="btn btn--secondary" data-mat="al" aria-pressed="false">Aluminium</button>
         </div>
       </div>
-      <!-- Lupen-Knopf folgt in Schritt 4 -->
+      <button type="button" id="lupeBtn" class="btn btn--secondary lab-lupe-btn" aria-pressed="false" aria-controls="lupePanel">
+        <svg viewBox="0 0 28 28" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.2"/>
+          <line x1="18.6" y1="18.6" x2="25.5" y2="25.5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="12" cy="12" r="5.2" fill="none" stroke="currentColor" stroke-width="1.1" stroke-dasharray="1.8 2.2"/>
+          <circle cx="12" cy="12" r="1.9" fill="currentColor"/>
+        </svg>
+        <span>Lupe: ein Atom</span>
+      </button>
     </div>
     <div class="lab-row">
       <div class="lab-slider">
@@ -96,6 +104,27 @@
     <p class="lab-progress" id="burstInfo" role="status"></p>
   </div>
 
+  <div class="card lab-controls lab-card" id="lupePanel" hidden>
+    <div class="lab-row">
+      <div class="lab-slider">
+        <label class="ui-label" for="lupeB">Stossparameter b</label>
+        <input id="lupeB" type="range" min="0" max="100" step="0.5" value="15">
+        <output id="lupeBOut" for="lupeB">15 fm</output>
+      </div>
+      <button type="button" id="lupeGo" class="btn">Teilchen losschicken</button>
+    </div>
+    <div class="lab-row">
+      <div class="segmented" role="group" aria-label="Darstellung in der Lupe">
+        <button type="button" id="lupeStream" class="btn btn--secondary" aria-pressed="true">Strahl: mehrere Teilchen</button>
+        <button type="button" id="lupeAuto" class="btn btn--secondary" aria-pressed="true">Bahn wechselt automatisch</button>
+        <button type="button" id="lupeBil" class="btn btn--secondary" aria-pressed="false">Billardkugel-Vorstellung (falsch)</button>
+        <button type="button" id="lupeTgt" class="btn btn--secondary" aria-pressed="false">Zielscheibe</button>
+      </div>
+      <button type="button" id="lupeClose" class="btn btn--secondary">Lupe schliessen</button>
+    </div>
+    <div class="lab-lupe-info" id="lupeInfo" role="status"></div>
+  </div>
+
   <div class="card lab-card">
     <table class="lab-table" aria-label="Ablenkwinkel der Teilchen">
       <thead><tr><th scope="col">Ablenkung</th><th scope="col">Teilchen</th><th scope="col">Anteil</th></tr></thead>
@@ -109,7 +138,7 @@
     <div class="callout"><span class="ui-label">Modell</span><p>Das ist ein Modell. Die Elektronen sind nicht gezeichnet, sie lenken α-Teilchen kaum ab. Bahnen gibt es hier nicht. Der Kern ist etwa hunderttausendmal kleiner als das Atom, die Zeichnung ist nicht massstäblich.</p></div>
     <div class="callout"><span class="ui-label">Kaum Stoff, aber nicht nichts</span><p>Zwischen Kern und Hülle ist fast kein Stoff. Die Ablenkung geschieht durch die elektrische Abstossung zwischen dem positiven α-Teilchen und dem positiven Kern, also durch ein Feld. Das α-Teilchen berührt den Kern nie und prallt nicht wie eine Billardkugel ab.</p></div>
     <div class="callout"><span class="ui-label">Flugbahn</span><p>Die Linien mit Ring am Schirm zeigen die Flugbahn stark abgelenkter Teilchen, schematisch: gerade zur Folie, dort abgelenkt, gerade zum Schirm. In Wirklichkeit krümmt die Abstossung die Bahn nahe am Kern. Bei kleiner Rate fliegen einzelne Teilchen als Punkte durch das Bild.</p></div>
-    <!-- Hinweis «Lupe» folgt in Schritt 4 -->
+    <div class="callout"><span class="ui-label">Lupe</span><p>Die Lupe zeigt ein einzelnes Atom mit Massstab. Der Stossparameter b ist der Abstand der ursprünglichen Flugbahn von der Kernachse. Die Bahnen sind aus der Abstossungskraft gerechnet und stimmen mit der Rutherford-Formel überein. Das α-Teilchen kommt dem Kern bei Gold nie näher als etwa 30 fm, der Kern hat etwa 7 fm Radius: Es wird abgestossen, es prallt nicht ab. Der Strahl zeigt mehrere Teilchen mit zufälligem Stossparameter: Die meisten werden kaum abgelenkt, nur wenige stark. Die markierte Bahn blendet nach dem Durchflug aus, danach wird eine neue markiert (abschaltbar). Der Schalter «Billardkugel» zeigt zum Vergleich eine falsche Vorstellung. Im Thomson-Modell zeigt die Lupe das Atom mit gleichmässig verteilter positiver Ladung: Die Kraft ist überall klein, und die winzige Ablenkung ist für die Zeichnung vergrössert (der Faktor steht im Bild).</p></div>
     <div class="callout"><span class="ui-label">Zeitraffer</span><p>Die starken Ablenkungen sind sehr selten. Geiger und Marsden mussten die Blitze auf dem Schirm einzeln zählen. Hier läuft die Zeit gerafft.</p></div>
     <div class="callout"><span class="ui-label">Zahlen</span><p>Die Rechnung nutzt die Rutherford-Streuung an einem punktförmigen Kern. Unter 0,5 Grad ist die Streuung durch die Abschirmung der Elektronen als Gauss-Verteilung genähert. Im Thomson-Modell ist der Kern der Verteilung derselbe, es fehlen aber die seltenen grossen Winkel: Kleine Winkel unterscheiden die Modelle nicht, grosse schon. Die Werte sind noch nicht geprüft.</p></div>
   </div>
@@ -130,7 +159,7 @@
     <p id="messreiheLock" hidden>Die Messreihe zu acht Metallen mit der Aufgabe gehört zur Lizenz.</p>
   </details>
 
-  <p class="lab-links">Für Screenshots: Link mit <code>?modell=kern&amp;material=au&amp;dicke=1.2&amp;energie=7.7&amp;theme=dark&amp;start=1000000</code> (der Wert bei <code>start</code> ist die Zahl der sofort gerechneten Teilchen).</p>
+  <p class="lab-links">Für Screenshots: Link mit <code>?modell=kern&amp;material=au&amp;dicke=1.2&amp;energie=7.7&amp;theme=dark&amp;start=1000000</code> (der Wert bei <code>start</code> ist die Zahl der sofort gerechneten Teilchen). Die Lupe öffnet mit <code>&amp;lupe=1</code>, dazu <code>&amp;strahl=0</code> (ohne Strahl), <code>&amp;auto=0</code> (Bahn bleibt stehen), <code>&amp;b=15</code> (Stossparameter in fm), <code>&amp;t=0.5</code> (Stand des Teilchens von 0 bis 1, ohne Animation), <code>&amp;billard=1</code> und <code>&amp;ziel=1</code>.</p>
 </main>
 
 <footer class="page-footer">
@@ -164,6 +193,7 @@
 <script src="src/ui/canvas.js"></script>
 <script src="src/ui/chart.js"></script>
 <script src="src/ui/scene.js"></script>
+<script src="src/ui/lupe.js"></script>
 <script src="src/ui/shell.js"></script>
 <script src="src/ui/controls.js"></script>
 </body>

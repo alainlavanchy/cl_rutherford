@@ -75,6 +75,7 @@
     var fw = 4 + v.thick * 2;
     ctx.fillStyle = pal.line; ctx.fillRect(L.CX - fw / 2, L.CY - 70, fw, 140);
     ctx.fillStyle = pal.text; ctx.fillText("Folie", L.CX, L.CY - 80);
+    ctx.fillStyle = pal.soft; ctx.font = stage.ui(12); ctx.fillText("Klick auf die Folie: Lupe", L.CX, L.CY + 92);
 
     // Flugbahnen stark abgelenkter Teilchen (schematisch: gerade zur Folie, dort abgelenkt, gerade zum Schirm)
     ctx.lineWidth = 1.4; ctx.strokeStyle = pal.line; ctx.globalAlpha = 0.55;

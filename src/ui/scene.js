@@ -1,8 +1,10 @@
 /**
  * Hauptansicht: Quelle, Folie, kreisförmiger Schirm, Balken je Richtung, Ringe,
  * Flugbahnen, fliegende Teilchen, Atom-Kärtchen und Diagramm.
- * Farben: α-Teilchen, Bahnen, Ringe und Balken im Leitton; Quelle, Folie und Schirm in Tusche;
- * Blitze in Tinte; Hilfslinien als Haarlinie. Starke Ablenkung = Punkt mit Ring (Form).
+ * Farbkonzept A (Entscheid 2026-11-05): Blitze auf dem Schirm (das Gemessene) in Ocker (--data-2)
+ * mit Tuschelinie, weil Ocker auf Papier unter 3:1 liegt (Design-Skills 4.3). Flugbahnen und
+ * fliegende Teilchen (Modell) in Tusche. Balken, Atom-Kärtchen und Diagramm im Leitton.
+ * Starke Ablenkung = grösserer Punkt mit Ring (Form als zweite Information).
  */
 (function (root) {
   "use strict";
@@ -75,23 +77,28 @@
     ctx.fillStyle = pal.text; ctx.fillText("Folie", L.CX, L.CY - 80);
 
     // Flugbahnen stark abgelenkter Teilchen (schematisch: gerade zur Folie, dort abgelenkt, gerade zum Schirm)
-    ctx.lineWidth = 1.6; ctx.strokeStyle = pal.accent; ctx.globalAlpha = 0.7;
+    ctx.lineWidth = 1.4; ctx.strokeStyle = pal.line; ctx.globalAlpha = 0.55;
     v.tracks.forEach(function (al) { var p = pos(L, al); ctx.beginPath(); ctx.moveTo(L.SX + 20, L.CY); ctx.lineTo(L.CX, L.CY); ctx.lineTo(p[0], p[1]); ctx.stroke(); });
     ctx.globalAlpha = 1;
 
-    // Blitze auf dem Schirm
-    ctx.fillStyle = pal.text; ctx.globalAlpha = 0.3;
-    for (var i = 0; i < v.dots.length; i++) { var p2 = pos(L, v.dots[i]); ctx.fillRect(p2[0] - 1.5, p2[1] - 1.5, 3, 3); }
-    ctx.globalAlpha = 1;
-    // Starke Ablenkung (über 45°): Punkt mit Ring
+    // Blitze auf dem Schirm: Ocker mit feiner Tuschelinie, als ein Pfad (schnell auch bei 14 000 Punkten)
+    if (v.dots.length) {
+      ctx.beginPath();
+      for (var i = 0; i < v.dots.length; i++) { var p2 = pos(L, v.dots[i]); ctx.rect(p2[0] - 1.8, p2[1] - 1.8, 3.6, 3.6); }
+      ctx.fillStyle = pal.flash; ctx.fill();
+      ctx.strokeStyle = pal.line; ctx.lineWidth = 0.6; ctx.globalAlpha = 0.6; ctx.stroke(); ctx.globalAlpha = 1;
+    }
+    // Starke Ablenkung (über 45°): grösserer Blitz mit Ring, beide mit Tuschelinie
     for (var j = 0; j < v.bigs.length; j++) {
       var q = pos(L, v.bigs[j]);
-      ctx.fillStyle = pal.text; ctx.beginPath(); ctx.arc(q[0], q[1], 3.5, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = pal.accent; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(q[0], q[1], 7.5, 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = pal.line; ctx.lineWidth = 4.5; ctx.beginPath(); ctx.arc(q[0], q[1], 7.5, 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = pal.flash; ctx.lineWidth = 2.5; ctx.stroke();
+      ctx.fillStyle = pal.flash; ctx.strokeStyle = pal.line; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(q[0], q[1], 3.6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     }
 
-    // Fliegende Teilchen
-    ctx.fillStyle = pal.accent;
+    // Fliegende Teilchen (Modell): Tusche
+    ctx.fillStyle = pal.line;
     v.flights.forEach(function (f) {
       var ph = (v.now - f.t0) / FLIGHT_MS, x, y;
       if (ph < 0 || ph >= 1) return;

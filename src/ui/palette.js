@@ -15,6 +15,7 @@
     surface: "--color-surface",
     surface2: "--color-surface-2",
     series2: "--data-5",
+    flash: "--data-2",          // Ocker: Blitze auf dem Schirm (Farbkonzept A)
     fontTitle: "--font-title",
     fontUi: "--font-ui"
   };

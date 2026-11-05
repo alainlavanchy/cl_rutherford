@@ -18,6 +18,7 @@ Bei Widersprüchen: nennen und nachfragen, nicht still lösen.
 - Neue Klassen vorerst in `assets/lab.css` (nur Tokens), als Änderungsbedarf für die Basis-CSS melden.
 - Kein Maus-Gradient, kein Glas-Overlay, kein Fortschrittsband. Legal-Overlay bleibt, lädt `/data/legal.json` nur beim Klick.
 - Diagramm: Kernmodell `--lab-accent` durchgezogen, Thomson `--data-5` gestrichelt, beide beschriftet. Kein `--data-1` (Zinnober) in der Szene.
+- Farbkonzept A: Blitze auf dem Schirm und Ringe in Ocker (`--data-2`) mit Tuschelinie (Ocker liegt auf Papier unter 3:1); Flugbahnen und fliegende Teilchen in Tusche; Balken, Atom und Diagramm im Leitton. Die Szene hat damit bewusst zwei Farben: Ocker heisst «Blitz, gemessen».
 - Schätzwerte der Physik (Kernradius, α-Radius, Thomson-Radius, Thomson-Gesamtstreuung) unverändert aus der Demo; nicht selbst ändern.
 
 ## Technik

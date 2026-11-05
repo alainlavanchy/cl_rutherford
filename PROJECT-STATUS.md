@@ -74,6 +74,7 @@ Wird nach jeder Sitzung aktualisiert (Anleitung: `prompts/status-update.md`). Fe
 | O-18 | Favicon fehlt: Design-Skills 8 verlangt `favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` lokal, die Vorlage ist dort noch offen (13). Keine `<link rel="icon">` gesetzt, damit kein 404 entsteht | Sitzung 5 | 2026-11-06 | offen (Alain: Vorlage) |
 | O-19 | Fokusring der Basis-CSS (halbtransparenter Saum) ist auf gedrückten Knöpfen schwach; im Lab verstärkt (Lücke in `--color-bg`, Ring in `--color-signal`) | Sitzung 5 | 2026-11-06 | offen, Änderungsbedarf Basis-CSS |
 | O-20 | Reduzierte Bewegung nur simuliert (`matchMedia` ersetzt); mit echter Systemeinstellung ungeprüft. Ebenso Screenreader nicht geprüft | Sitzung 5 | 2026-11-06 | offen (Alain) |
+| O-21 | Fach-Slug `chem` weicht von SKILL-labs §6 ab (`chemie`); das Nachbarlab verlinkt im Breadcrumb `/lab/chemie`. Übersichtsseite `/lab/chem/` und Lehrpersonen-Seite bestehen noch nicht | Sitzung 6 | 2026-11-06 | offen (Alain: SKILL-labs und Nachbarlab angleichen) |
 
 Erledigte Punkte bleiben stehen und werden mit Datum und Hash als erledigt markiert.
 
@@ -82,7 +83,7 @@ Erledigte Punkte bleiben stehen und werden mit Datum und Hash als erledigt marki
 | Datum | Entscheid |
 | --- | --- |
 | 2026-11-05 | Spezifikation ist `docs/rutherford-lab-minispec.md`; CLAUDE.md, Status und Protokoll-Prompt nach dem Muster von `lab/atome_und_molekuele` |
-| 2026-11-05 | `data-lab="chemie"` (Pflaume), URL `lab/chemie/rutherford/`, Breadcrumb «Chemie» |
+| 2026-11-05 | `data-lab="chemie"` (Pflaume), URL `lab/chemie/rutherford/`, Breadcrumb «Chemie» (URL ersetzt am 2026-11-06) |
 | 2026-11-05 | Neue Klassen vorerst in `assets/lab.css`, Basis-CSS nicht ändern |
 | 2026-11-05 | Kein Maus-Gradient, kein Glas-Overlay, kein Fortschrittsband; Legal-Overlay bleibt (lädt nur beim Klick) |
 | 2026-11-05 | Diagramm: Kernmodell `--lab-accent` durchgezogen, Thomson `--data-5` gestrichelt |
@@ -92,6 +93,7 @@ Erledigte Punkte bleiben stehen und werden mit Datum und Hash als erledigt marki
 | 2026-11-05 | Farbkonzept A (Ocker für Blitze) umgesetzt und wieder verworfen: passt besonders im Dunkelmodus nicht |
 | 2026-11-05 | Szene nur in Pflaume (Blitze, Flugbahnen, fliegende Teilchen, Balken); starke Ablenkung als grösserer voller Punkt ohne Ring (Abweichung vom Auftrag §4.3 «Ringe für Ablenkungen über 45 Grad») |
 | 2026-11-05 | Wortlaut der Hinweise «Flugbahn» und «Lupe» ohne «rot» bestätigt |
+| 2026-11-06 | URL: `cogniviolabs.com/lab/chem/rutherford_goldfolie/index.html`; Breadcrumb auf `/lab/chem/`, Lehrpersonen-Seite `/lab/chem/rutherford_goldfolie/lehrperson` |
 | 2026-11-06 | Lichtblitze in #e2ae6c (Komplementärton) als Lab-Token `--lab-flash`; Blitze verglimmen nach kurzer Zeit, die Verteilung bleibt als Balkenkranz |
 
 ## Änderungsbedarf an der Spezifikation

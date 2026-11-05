@@ -1,6 +1,6 @@
 # Rutherford-Lab (Goldfolienversuch)
 
-Interaktives Lab im Atompaket von Cogniviolabs (Sek I, obere Stufen). α-Teilchen fliegen durch eine dünne Folie; die Lernenden vergleichen Thomson-Modell und Kernmodell. URL: `cogniviolabs.com/lab/chemie/rutherford/`, `data-lab="chemie"` (Pflaume).
+Interaktives Lab im Atompaket von Cogniviolabs (Sek I, obere Stufen). α-Teilchen fliegen durch eine dünne Folie; die Lernenden vergleichen Thomson-Modell und Kernmodell. URL: `cogniviolabs.com/lab/chem/rutherford_goldfolie/index.html` (Fach-Slug `chem`, Ordner `rutherford_goldfolie`), Lehrpersonen-Seite `…/lab/chem/rutherford_goldfolie/lehrperson`, `data-lab="chemie"` (Pflaume).
 
 ## Quellen, in dieser Reihenfolge
 
@@ -14,7 +14,7 @@ Bei Widersprüchen: nennen und nachfragen, nicht still lösen.
 
 ## Festlegungen (2026-11-05)
 
-- Leitton `chemie`, URL-Fach `chemie`, Breadcrumb «Chemie».
+- Leitton `chemie`, URL `lab/chem/rutherford_goldfolie/` (Entscheid 2026-11-06, ersetzt `lab/chemie/rutherford/`), Breadcrumb «Chemie» auf `/lab/chem/`.
 - Neue Klassen vorerst in `assets/lab.css` (nur Tokens), als Änderungsbedarf für die Basis-CSS melden.
 - Kein Maus-Gradient, kein Glas-Overlay, kein Fortschrittsband. Legal-Overlay bleibt, lädt `/data/legal.json` nur beim Klick.
 - Diagramm: Kernmodell `--lab-accent` durchgezogen, Thomson `--data-5` gestrichelt, beide beschriftet. Kein `--data-1` (Zinnober) in der Szene.
